@@ -20,5 +20,32 @@
     "logOut": "Chiqish",
     "openMenu": "Menyuni ochish",
     "language": "Til"
+  },
+  "auth": {
+    "login": {
+      "title": "Kirish",
+      "submit": "Kirish",
+      "noAccount": "Hisobingiz yo‘qmi?",
+      "registerLink": "Yaratish",
+      "invalidCredentials": "Email yoki parol noto‘g‘ri",
+      "suspended": "Hisobingiz bloklangan"
+    },
+    "register": {
+      "title": "Hisob yarating",
+      "submit": "Hisob yaratish",
+      "hasAccount": "Hisobingiz bormi?",
+      "loginLink": "Kirish"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Parol",
+      "name": "Ism"
+    },
+    "errors": {
+      "emailInvalid": "To‘g‘ri email manzilini kiriting",
+      "passwordMin": "Parol kamida 8 ta belgidan iborat bo‘lishi kerak",
+      "emailTaken": "Bu email allaqachon band",
+      "generic": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+    }
   }
 }

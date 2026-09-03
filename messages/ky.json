@@ -20,5 +20,32 @@
     "logOut": "Чыгуу",
     "openMenu": "Менюну ачуу",
     "language": "Тил"
+  },
+  "auth": {
+    "login": {
+      "title": "Кирүү",
+      "submit": "Кирүү",
+      "noAccount": "Аккаунтуңуз жокпу?",
+      "registerLink": "Түзүү",
+      "invalidCredentials": "Email же сырсөз туура эмес",
+      "suspended": "Аккаунтуңуз бөгөттөлгөн"
+    },
+    "register": {
+      "title": "Аккаунт түзүү",
+      "submit": "Аккаунт түзүү",
+      "hasAccount": "Аккаунтуңуз барбы?",
+      "loginLink": "Кирүү"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Сырсөз",
+      "name": "Аты"
+    },
+    "errors": {
+      "emailInvalid": "Туура email дарегин киргизиңиз",
+      "passwordMin": "Сырсөз кеминде 8 белгиден турушу керек",
+      "emailTaken": "Бул email мурунтан эле колдонулууда",
+      "generic": "Ката кетти. Кайра аракет кылыңыз."
+    }
   }
 }

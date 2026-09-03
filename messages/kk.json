@@ -20,5 +20,32 @@
     "logOut": "Шығу",
     "openMenu": "Мәзірді ашу",
     "language": "Тіл"
+  },
+  "auth": {
+    "login": {
+      "title": "Кіру",
+      "submit": "Кіру",
+      "noAccount": "Аккаунтыңыз жоқ па?",
+      "registerLink": "Жасау",
+      "invalidCredentials": "Email немесе құпия сөз дұрыс емес",
+      "suspended": "Аккаунтыңыз бұғатталған"
+    },
+    "register": {
+      "title": "Аккаунт жасау",
+      "submit": "Аккаунт жасау",
+      "hasAccount": "Аккаунтыңыз бар ма?",
+      "loginLink": "Кіру"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Құпия сөз",
+      "name": "Аты"
+    },
+    "errors": {
+      "emailInvalid": "Дұрыс email мекенжайын енгізіңіз",
+      "passwordMin": "Құпия сөз кемінде 8 таңбадан тұруы керек",
+      "emailTaken": "Бұл email әлдеқашан қолданылған",
+      "generic": "Қате орын алды. Қайта көріңіз."
+    }
   }
 }

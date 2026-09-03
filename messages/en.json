@@ -19,5 +19,32 @@
     "logOut": "Log out",
     "openMenu": "Open menu",
     "language": "Language"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create one",
+      "invalidCredentials": "Invalid email or password",
+      "suspended": "Your account has been suspended"
+    },
+    "register": {
+      "title": "Create your account",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "name": "Name"
+    },
+    "errors": {
+      "emailInvalid": "Enter a valid email address",
+      "passwordMin": "Password must be at least 8 characters",
+      "emailTaken": "Email already in use",
+      "generic": "Something went wrong. Try again."
+    }
   }
 }

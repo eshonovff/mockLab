@@ -19,5 +19,32 @@
     "logOut": "Баромадан",
     "openMenu": "Кушодани меню",
     "language": "Забон"
+  },
+  "auth": {
+    "login": {
+      "title": "Ворид шудан",
+      "submit": "Ворид шудан",
+      "noAccount": "Ҳисоб надоред?",
+      "registerLink": "Сохтан",
+      "invalidCredentials": "Email ё рамз нодуруст аст",
+      "suspended": "Ҳисоби шумо бастааст"
+    },
+    "register": {
+      "title": "Ҳисоб созед",
+      "submit": "Сохтани ҳисоб",
+      "hasAccount": "Ҳисоб доред?",
+      "loginLink": "Ворид шудан"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Рамз",
+      "name": "Ном"
+    },
+    "errors": {
+      "emailInvalid": "Email-и дурустро ворид кунед",
+      "passwordMin": "Рамз бояд аз 8 аломат кам набошад",
+      "emailTaken": "Ин email аллакай истифода шудааст",
+      "generic": "Хатогӣ рух дод. Бори дигар кӯшиш кунед."
+    }
   }
 }

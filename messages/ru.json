@@ -19,5 +19,32 @@
     "logOut": "Выйти",
     "openMenu": "Открыть меню",
     "language": "Язык"
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "submit": "Войти",
+      "noAccount": "Нет аккаунта?",
+      "registerLink": "Создать",
+      "invalidCredentials": "Неверный email или пароль",
+      "suspended": "Ваш аккаунт заблокирован"
+    },
+    "register": {
+      "title": "Создать аккаунт",
+      "submit": "Создать аккаунт",
+      "hasAccount": "Уже есть аккаунт?",
+      "loginLink": "Войти"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Пароль",
+      "name": "Имя"
+    },
+    "errors": {
+      "emailInvalid": "Введите корректный email",
+      "passwordMin": "Пароль должен содержать не менее 8 символов",
+      "emailTaken": "Этот email уже используется",
+      "generic": "Что-то пошло не так. Попробуйте снова."
+    }
   }
 }
