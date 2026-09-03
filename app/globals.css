@@ -1,10 +1,20 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 /*
  * Raw design tokens — the single source of truth (CLAUDE.md §6). Kept as plain custom
  * properties rather than inlined directly into @theme below, so a future dark-mode pass can
  * redefine this block (e.g. under `:root[data-theme="dark"]`) and every `@theme` mapping and
  * component that references them picks up the change automatically — a one-file edit.
+ *
+ * The block also carries shadcn/ui's semantic slots (--background, --card, --primary, ...).
+ * Every one of them is a `var()` reference back to a token above — never a new color — so
+ * shadcn's copied component source (which is written against those semantic class names, e.g.
+ * `bg-primary`, `border-border`) renders in our palette without needing every component edited
+ * by hand. shadcn's own init CLI generated this block first with its neutral-gray defaults;
+ * this is the restyled version.
  */
 :root {
   --canvas: #f6f4fb;
@@ -26,11 +36,57 @@
   --badge-lilac-fg: #5b3bd4;
 
   --overlay-shadow: 0 8px 24px rgba(16, 16, 20, 0.08);
+
+  /* shadcn semantic slots. --accent is CLAUDE.md's own token, reused as-is — its own
+     description ("links, focus ring, active nav, selected state") already covers shadcn's
+     highlighted/selected menu-item role, so no separate value is needed. */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--rail);
+  --primary-foreground: var(--surface);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  /* --line (not --canvas) so hover/muted states stay visible against both --background
+     (canvas) and --card (surface) — canvas and --muted would otherwise be identical, making
+     e.g. the outline button's hover:bg-muted invisible against its own bg-background. */
+  --muted: var(--line);
+  --muted-foreground: var(--ink-muted);
+  --accent-foreground: var(--surface);
+  --destructive: var(--badge-rose-fg);
+  --destructive-foreground: var(--surface);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--accent);
+
+  /* Base radius for controls (12px per CLAUDE.md §6). Card (20px) and pill/badge (999px)
+     don't fit a single scalar multiplier, so those are set directly on their component files
+     via the rounded-card / rounded-pill utilities defined below, not derived from this. */
+  --radius: 12px;
+
+  /* shadcn's Sidebar and Chart components aren't in CLAUDE.md's component list (§ Phase 1.2) —
+     left at the CLI's generated defaults since nothing renders them yet. */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
 }
 
 /* Wire the raw tokens into Tailwind v4's CSS-first theme so utilities like bg-canvas,
    text-ink-muted, rounded-card, and text-display are generated. */
-@theme {
+@theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-rail: var(--rail);
@@ -49,11 +105,50 @@
   --color-badge-lilac-bg: var(--badge-lilac-bg);
   --color-badge-lilac-fg: var(--badge-lilac-fg);
 
+  /* shadcn semantic color utilities (bg-primary, border-border, ring-ring, ...). */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
   /* Radius: 20px cards/rail, 12px inputs/buttons, 999px badges/pills — never one radius for
-     everything. */
+     everything. shadcn's own sm/md/lg/xl scale (derived from --radius) is kept for any
+     component internals that reference it, but our own code should reach for these named
+     ones directly. */
   --radius-card: 20px;
   --radius-control: 12px;
   --radius-pill: 999px;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
   /* Type scale: 32/24/18/15/13. Body (15px) carries the 1.55 line-height CLAUDE.md specifies;
      the display sizes use a tighter line-height appropriate for headings. */
@@ -75,8 +170,7 @@
   /* Inter for everything except literal data (API paths, project keys, JSON, code samples,
      generated field values), which uses JetBrains Mono. Both fonts are loaded via next/font
      in app/[locale]/layout.tsx, which sets these CSS variables. */
-  --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono:
     var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
@@ -107,6 +201,24 @@
     outline: 2px solid var(--accent);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* sonner's toast (an overlay per CLAUDE.md §6) hardcodes its own box-shadow in the
+     package's bundled CSS rather than exposing it as a variable — override it directly.
+     border-radius is already correctly wired via the --border-radius inline style in
+     components/ui/sonner.tsx. !important guards against load-order with sonner's own
+     stylesheet, which is otherwise the same selector specificity. */
+  [data-sonner-toast][data-styled="true"] {
+    box-shadow: var(--overlay-shadow) !important;
   }
 }
 

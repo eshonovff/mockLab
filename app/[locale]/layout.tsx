@@ -4,6 +4,8 @@ import { setRequestLocale } from "next-intl/server";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
 import { brand } from "@/lib/brand";
 import type { Locale } from "@/lib/locales";
@@ -50,7 +52,10 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
