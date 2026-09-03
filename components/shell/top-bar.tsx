@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
+import { Bell, LogOut, Menu, Settings, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -27,7 +27,13 @@ export function TopBar() {
     <header className="border-line flex h-16 shrink-0 items-center gap-3 border-b px-4 lg:px-6">
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t("openMenu")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
+            className="lg:hidden"
+            aria-label={t("openMenu")}
+          >
             <Menu className="size-4" aria-hidden="true" />
           </Button>
         </SheetTrigger>
@@ -37,16 +43,12 @@ export function TopBar() {
         </SheetContent>
       </Sheet>
 
-      <div className="relative max-w-sm flex-1">
-        <Search
-          className="text-ink-muted pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
-          aria-hidden="true"
-        />
-        <Input type="search" placeholder={t("search")} className="pl-8" aria-label={t("search")} />
+      <div className="max-w-sm flex-1">
+        <Input type="search" placeholder={t("search")} aria-label={t("search")} />
       </div>
 
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="icon" aria-label={t("notifications")}>
+        <Button variant="ghost" size="sm" iconOnly aria-label={t("notifications")}>
           <Bell className="size-4" aria-hidden="true" />
         </Button>
 
@@ -54,7 +56,13 @@ export function TopBar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={t("account")} className="rounded-full">
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              aria-label={t("account")}
+              className="rounded-full"
+            >
               <Avatar size="sm">
                 <AvatarFallback>
                   <UserRound className="size-3.5" aria-hidden="true" />

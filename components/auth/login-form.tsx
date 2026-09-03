@@ -67,14 +67,9 @@ export function LoginForm() {
               id="login-email"
               type="email"
               autoComplete="email"
-              aria-invalid={!!form.formState.errors.email}
+              error={form.formState.errors.email ? t("errors.emailInvalid") : undefined}
               {...form.register("email")}
             />
-            {form.formState.errors.email && (
-              <p role="alert" className="text-badge-rose-fg text-caption">
-                {t("errors.emailInvalid")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -94,7 +89,7 @@ export function LoginForm() {
             </p>
           )}
 
-          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+          <Button type="submit" loading={form.formState.isSubmitting} className="w-full">
             {t("login.submit")}
           </Button>
         </form>

@@ -6,7 +6,8 @@
     "save": "Saqlash",
     "cancel": "Bekor qilish",
     "delete": "O‘chirish",
-    "back": "Orqaga"
+    "back": "Orqaga",
+    "close": "Yopish"
   },
   "shell": {
     "dashboard": "Boshqaruv paneli",
@@ -47,6 +48,16 @@
       "passwordMin": "Parol kamida 8 ta belgidan iborat bo‘lishi kerak",
       "emailTaken": "Bu email allaqachon band",
       "generic": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+    }
+  },
+  "ui": {
+    "input": {
+      "showPassword": "Parolni ko‘rsatish",
+      "hidePassword": "Parolni yashirish",
+      "clearSearch": "Qidiruvni tozalash"
+    },
+    "dialog": {
+      "typeToConfirm": "Tasdiqlash uchun {word} so‘zini kiriting"
     }
   }
 }

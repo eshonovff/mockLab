@@ -67,16 +67,15 @@ export function RegisterForm() {
               id="register-email"
               type="email"
               autoComplete="email"
-              aria-invalid={!!form.formState.errors.email}
+              error={
+                form.formState.errors.email
+                  ? form.formState.errors.email.message === t("errors.emailTaken")
+                    ? t("errors.emailTaken")
+                    : t("errors.emailInvalid")
+                  : undefined
+              }
               {...form.register("email")}
             />
-            {form.formState.errors.email && (
-              <p role="alert" className="text-badge-rose-fg text-caption">
-                {form.formState.errors.email.message === t("errors.emailTaken")
-                  ? t("errors.emailTaken")
-                  : t("errors.emailInvalid")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -85,14 +84,9 @@ export function RegisterForm() {
               id="register-password"
               type="password"
               autoComplete="new-password"
-              aria-invalid={!!form.formState.errors.password}
+              error={form.formState.errors.password ? t("errors.passwordMin") : undefined}
               {...form.register("password")}
             />
-            {form.formState.errors.password && (
-              <p role="alert" className="text-badge-rose-fg text-caption">
-                {t("errors.passwordMin")}
-              </p>
-            )}
           </div>
 
           {formError && (
@@ -101,7 +95,7 @@ export function RegisterForm() {
             </p>
           )}
 
-          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+          <Button type="submit" loading={form.formState.isSubmitting} className="w-full">
             {t("register.submit")}
           </Button>
         </form>

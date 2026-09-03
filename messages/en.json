@@ -5,7 +5,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "back": "Back"
+    "back": "Back",
+    "close": "Close"
   },
   "shell": {
     "dashboard": "Dashboard",
@@ -46,6 +47,16 @@
       "passwordMin": "Password must be at least 8 characters",
       "emailTaken": "Email already in use",
       "generic": "Something went wrong. Try again."
+    }
+  },
+  "ui": {
+    "input": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "clearSearch": "Clear search"
+    },
+    "dialog": {
+      "typeToConfirm": "Type {word} to confirm"
     }
   }
 }
