@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  role      Role      @default(USER)
+  status    Status    @default(ACTIVE)
+  locale    String    @default("en")
+  projects  Project[]
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id        String     @id @default(cuid())
+  userId    String
+  name      String
+  key       String     @unique // nanoid(12), URL segment
+  resources Resource[]
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Resource {
+  id          String     @id @default(cuid())
+  projectId   String
+  name        String // slug: "products"
+  schema      Json // { fields: [...] }
+  seed        String // nanoid(10)
+  count       Int        @default(50)
+  dataVersion Int        @default(1) // bumped on every mutation -> cache key
+  overrides   Override[]
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+  @@index([projectId])
+}
+
+model Override {
+  id          String   @id @default(cuid())
+  resourceId  String
+  recordId    String // the public id of the record
+  recordIndex Int? // null for records created via POST
+  data        Json?
+  deleted     Boolean  @default(false)
+  isNew       Boolean  @default(false)
+  resource    Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceId, recordId])
+  @@index([resourceId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  SUSPENDED
+}
