@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import type { Role, Status } from "@prisma/client";
+import type { Role, Status, User } from "@prisma/client";
 
 const SESSION_COOKIE_NAME = "session";
 const SESSION_DURATION = "7d";
@@ -18,13 +18,44 @@ export type SessionTokenPayload = {
   userId: string;
 };
 
-export type Session = {
-  userId: string;
+/** A user's fields safe to send to the client — never includes `password`. */
+export type PublicUser = {
+  id: string;
   email: string;
   name: string | null;
   role: Role;
   status: Status;
+  locale: string;
+  createdAt: Date;
 };
+
+/** The current session is just the current user's public fields. */
+export type Session = PublicUser;
+
+/** Prisma `select` matching `PublicUser`, for queries that don't need `password` at all. */
+export const publicUserSelect = {
+  id: true,
+  email: true,
+  name: true,
+  role: true,
+  status: true,
+  locale: true,
+  createdAt: true,
+} as const;
+
+/** Strips `password` from a full `User` row already fetched for another reason (e.g. login,
+ * which needs the hash to verify against). */
+export function toPublicUser(user: User): PublicUser {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    status: user.status,
+    locale: user.locale,
+    createdAt: user.createdAt,
+  };
+}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
@@ -90,18 +121,8 @@ export async function getSession(): Promise<Session | null> {
 
   const user = await db.user.findUnique({
     where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, status: true },
+    select: publicUserSelect,
   });
 
-  if (!user) {
-    return null;
-  }
-
-  return {
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    status: user.status,
-  };
+  return user;
 }
