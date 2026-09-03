@@ -22,3 +22,17 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const createProjectSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+});
+
+export type CreateProjectInput = z.infer<typeof createProjectSchema>;
+
+// `key` is deliberately absent — CLAUDE.md §4.1: "generated server-side and never accepted
+// from the client," and it isn't mutable after creation either.
+export const updateProjectSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+});
+
+export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
