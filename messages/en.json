@@ -9,6 +9,7 @@
   },
   "shell": {
     "dashboard": "Dashboard",
+    "admin": "Admin",
     "docs": "Docs",
     "support": "Support",
     "settings": "Settings",

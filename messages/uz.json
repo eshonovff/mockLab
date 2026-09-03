@@ -10,6 +10,7 @@
   },
   "shell": {
     "dashboard": "Boshqaruv paneli",
+    "admin": "Administrator paneli",
     "docs": "Hujjatlar",
     "support": "Yordam",
     "settings": "Sozlamalar",

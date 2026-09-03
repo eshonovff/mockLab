@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -9,12 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { loginSchema, type LoginInput } from "@/lib/validators";
+
+// Only accept a same-origin, relative `next` — it comes from the URL and could otherwise be
+// used for an open redirect (e.g. ?next=https://evil.example or ?next=//evil.example).
+function safeNextPath(next: string | null): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("://")) {
+    return null;
+  }
+  return next;
+}
 
 export function LoginForm() {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<LoginInput>({
@@ -32,7 +44,7 @@ export function LoginForm() {
     });
 
     if (response.ok) {
-      router.push("/dashboard");
+      router.push(safeNextPath(searchParams.get("next")) ?? `/${locale}/dashboard`);
       router.refresh();
       return;
     }
