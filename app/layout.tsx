@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
+import { brand } from "@/lib/brand";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MockLab",
-  description: "MockLab",
+  title: brand.name,
+  description: brand.tagline.en,
 };
 
 export default function RootLayout({
