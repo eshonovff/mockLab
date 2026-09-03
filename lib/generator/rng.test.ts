@@ -1,3 +1,5 @@
+import { execFileSync } from "node:child_process";
+
 import { describe, expect, it } from "vitest";
 
 import { hash32, mulberry32 } from "./rng";
@@ -25,12 +27,52 @@ describe("hash32", () => {
 });
 
 describe("mulberry32", () => {
-  it("produces an identical sequence for the same seed, across independent instances", () => {
+  it("produces an identical sequence for the same seed, across independent closures in one process", () => {
     const a = mulberry32(42);
     const b = mulberry32(42);
     const seqA = Array.from({ length: 20 }, () => a.next());
     const seqB = Array.from({ length: 20 }, () => b.next());
     expect(seqA).toEqual(seqB);
+  });
+
+  // The test above only proves two closures from the same module instance agree — it says
+  // nothing about a genuinely separate module/process, which is the actual claim CLAUDE.md §5
+  // depends on ("the same input always produces the same record, on any machine, in any
+  // process"). ESM module caching means we can't get a second instance of rng.ts within this
+  // vitest process, so this spawns a real child OS process, re-implements the same two
+  // functions inline (no import — a separate process can't share this file's module registry
+  // anyway), and diffs its output against the in-process result. This is what actually rules
+  // out reliance on any process-local state (there is none — no globals, no I/O — but this is
+  // the test that would catch it if that ever became false).
+  it("produces an identical sequence when re-computed in a separate OS process", () => {
+    const rng = mulberry32(hash32("resource-seed:3"));
+    const inProcess = Array.from({ length: 5 }, () => rng.next());
+
+    const script = `
+      function hash32(input) {
+        let hash = 0x811c9dc5;
+        for (let i = 0; i < input.length; i++) {
+          hash ^= input.charCodeAt(i);
+          hash = Math.imul(hash, 0x01000193);
+        }
+        return hash >>> 0;
+      }
+      function mulberry32(seed) {
+        let state = seed >>> 0;
+        return function next() {
+          state = (state + 0x6d2b79f5) | 0;
+          let t = Math.imul(state ^ (state >>> 15), 1 | state);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const next = mulberry32(hash32("resource-seed:3"));
+      const out = Array.from({ length: 5 }, () => next());
+      process.stdout.write(JSON.stringify(out));
+    `;
+
+    const childOutput = execFileSync(process.execPath, ["-e", script]).toString();
+    expect(JSON.parse(childOutput)).toEqual(inProcess);
   });
 
   it("diverges for different seeds", () => {
