@@ -7,5 +7,18 @@
     "cancel": "Bekor qilish",
     "delete": "O‘chirish",
     "back": "Orqaga"
+  },
+  "shell": {
+    "dashboard": "Boshqaruv paneli",
+    "docs": "Hujjatlar",
+    "support": "Yordam",
+    "settings": "Sozlamalar",
+    "search": "Qidiruv…",
+    "notifications": "Bildirishnomalar",
+    "account": "Hisob",
+    "profile": "Profil",
+    "logOut": "Chiqish",
+    "openMenu": "Menyuni ochish",
+    "language": "Til"
   }
 }

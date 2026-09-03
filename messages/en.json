@@ -6,5 +6,18 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "back": "Back"
+  },
+  "shell": {
+    "dashboard": "Dashboard",
+    "docs": "Docs",
+    "support": "Support",
+    "settings": "Settings",
+    "search": "Search…",
+    "notifications": "Notifications",
+    "account": "Account",
+    "profile": "Profile",
+    "logOut": "Log out",
+    "openMenu": "Open menu",
+    "language": "Language"
   }
 }

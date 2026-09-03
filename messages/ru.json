@@ -6,5 +6,18 @@
     "cancel": "Отмена",
     "delete": "Удалить",
     "back": "Назад"
+  },
+  "shell": {
+    "dashboard": "Дашборд",
+    "docs": "Документация",
+    "support": "Поддержка",
+    "settings": "Настройки",
+    "search": "Поиск…",
+    "notifications": "Уведомления",
+    "account": "Аккаунт",
+    "profile": "Профиль",
+    "logOut": "Выйти",
+    "openMenu": "Открыть меню",
+    "language": "Язык"
   }
 }

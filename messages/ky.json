@@ -7,5 +7,18 @@
     "cancel": "Жокко чыгаруу",
     "delete": "Өчүрүү",
     "back": "Артка"
+  },
+  "shell": {
+    "dashboard": "Башкы панель",
+    "docs": "Документтер",
+    "support": "Колдоо",
+    "settings": "Жөндөөлөр",
+    "search": "Издөө…",
+    "notifications": "Билдирүүлөр",
+    "account": "Аккаунт",
+    "profile": "Профиль",
+    "logOut": "Чыгуу",
+    "openMenu": "Менюну ачуу",
+    "language": "Тил"
   }
 }

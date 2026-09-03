@@ -7,5 +7,18 @@
     "cancel": "Бас тарту",
     "delete": "Жою",
     "back": "Артқа"
+  },
+  "shell": {
+    "dashboard": "Басқару тақтасы",
+    "docs": "Құжаттама",
+    "support": "Қолдау",
+    "settings": "Параметрлер",
+    "search": "Іздеу…",
+    "notifications": "Хабарландырулар",
+    "account": "Аккаунт",
+    "profile": "Профиль",
+    "logOut": "Шығу",
+    "openMenu": "Мәзірді ашу",
+    "language": "Тіл"
   }
 }

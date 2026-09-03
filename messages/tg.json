@@ -6,5 +6,18 @@
     "cancel": "Бекор кардан",
     "delete": "Нест кардан",
     "back": "Бозгашт"
+  },
+  "shell": {
+    "dashboard": "Дашборд",
+    "docs": "Ҳуҷҷатҳо",
+    "support": "Дастгирӣ",
+    "settings": "Танзимот",
+    "search": "Ҷустуҷӯ…",
+    "notifications": "Огоҳиҳо",
+    "account": "Ҳисоб",
+    "profile": "Профил",
+    "logOut": "Баромадан",
+    "openMenu": "Кушодани меню",
+    "language": "Забон"
   }
 }
