@@ -1,0 +1,10 @@
+{
+  "common": {
+    "appName": "MockLab",
+    "loading": "Загрузка…",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "back": "Назад"
+  }
+}

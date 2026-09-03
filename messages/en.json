@@ -1,0 +1,10 @@
+{
+  "common": {
+    "appName": "MockLab",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "back": "Back"
+  }
+}

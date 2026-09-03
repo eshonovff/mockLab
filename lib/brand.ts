@@ -1,4 +1,4 @@
-type BrandLocale = "en" | "tg" | "ru" | "uz" | "ky" | "kk";
+import type { Locale } from "@/lib/locales";
 
 export const brand = {
   name: "MockLab",
@@ -13,5 +13,5 @@ export const brand = {
     uz: "Yozuvlar soniga cheklovsiz soxta REST API",
     ky: "Жазуулардын санына чек коюлбаган жасалма REST API",
     kk: "Жазба санына шектеу қойылмаған жалған REST API",
-  } satisfies Record<BrandLocale, string>,
+  } satisfies Record<Locale, string>,
 } as const;

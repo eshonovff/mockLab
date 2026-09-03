@@ -1,0 +1,11 @@
+{
+  "_needsNativeReview": true,
+  "common": {
+    "appName": "MockLab",
+    "loading": "Жүктелуде…",
+    "save": "Сақтау",
+    "cancel": "Бас тарту",
+    "delete": "Жою",
+    "back": "Артқа"
+  }
+}
