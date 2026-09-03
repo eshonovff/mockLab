@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.6.0",
     "@hookform/resolvers": "^5.9.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
@@ -35,8 +36,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.20.1",
-    "@types/react": "^19.2.18",
     "@types/pg": "^8.23.1",
+    "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.4.2",
