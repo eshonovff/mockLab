@@ -208,6 +208,24 @@ function sortRecords(
 
 // ---------------------------------------------------------------------------------------------
 
+/** The cached, override-merged array (generate + merge only — no filter/search/sort/paginate). */
+function getMergedDataset(
+  resource: DatasetResource,
+  overrides: DatasetOverride[],
+  cache: DatasetCache,
+): CachedDataset {
+  const cacheKey = `${resource.id}:${resource.dataVersion}`;
+  let merged = cache.get(cacheKey);
+
+  if (merged === undefined) {
+    const generated = generateRange(resource.schema, resource.seed, 0, resource.count);
+    merged = mergeOverrides(generated, overrides);
+    cache.set(cacheKey, merged);
+  }
+
+  return merged;
+}
+
 /**
  * <=10_000: materialize the whole generated+merged dataset (cached by `${id}:${dataVersion}`),
  * then filter, search, and sort in memory before paginating.
@@ -218,16 +236,7 @@ function getDatasetAtOrBelowCutoff(
   query: ParsedQuery,
   cache: DatasetCache,
 ): DatasetResult {
-  const cacheKey = `${resource.id}:${resource.dataVersion}`;
-  let merged = cache.get(cacheKey);
-
-  if (merged === undefined) {
-    const generated = generateRange(resource.schema, resource.seed, 0, resource.count);
-    merged = mergeOverrides(generated, overrides);
-    cache.set(cacheKey, merged);
-  }
-
-  let result = merged;
+  let result = getMergedDataset(resource, overrides, cache);
   for (const filter of query.filters) {
     result = result.filter((record) => matchesFilter(record, filter));
   }
@@ -322,4 +331,56 @@ export function getDataset(
     return getDatasetAboveCutoff(resource, overrides, query);
   }
   return getDatasetAtOrBelowCutoff(resource, overrides, query, cache);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Single-record lookup (task 5.2) — getDataset only ever returns a page, not a targeted id
+// lookup, and the write path (PUT/PATCH/DELETE) additionally needs a *generated* record's
+// original index, not just its current data, to anchor a first-time override correctly.
+
+/**
+ * Finds one record by its public id.
+ *
+ * <=10_000: a linear scan over the same cached merged array the list path already
+ * materializes — cheap, since nothing extra gets generated to answer this.
+ *
+ * >10_000: only records already backed by an `Override` row (created via POST, or already
+ * PUT/PATCH/DELETE'd at least once) can be found at all — there's no cheap way back from an
+ * opaque id to its generating index without regenerating up to `resource.count` records to
+ * search for a match, which would defeat the entire point of this cutoff. A record that's part
+ * of the virtual dataset but was never touched by a prior write returns `null` here (the route
+ * surfaces that as 404) — an accepted v1 limitation for exactly the same reason CLAUDE.md §5
+ * already accepts others above this cutoff: "solved properly in v2."
+ */
+export function getRecordById(
+  resource: DatasetResource,
+  overrides: DatasetOverride[],
+  id: string,
+  cache: DatasetCache = defaultDatasetCache,
+): Record<string, unknown> | null {
+  if (resource.count > MATERIALIZE_CUTOFF) {
+    for (const override of overrides) {
+      if (override.recordId !== id) continue;
+      return override.deleted ? null : (override.data ?? null);
+    }
+    return null;
+  }
+
+  const merged = getMergedDataset(resource, overrides, cache);
+  return merged.find((record) => record.id === id) ?? null;
+}
+
+/**
+ * Finds the index a *plain generated* record (one with no override yet) would have, by
+ * searching the raw generated sequence for a matching id — what a first-time write to a
+ * previously-untouched record needs, to anchor its new override to the right position rather
+ * than accidentally appending a duplicate. Only attempted at or below the materialize cutoff,
+ * for the same reason `getRecordById` stops searching there: regenerating up to
+ * `resource.count` records to find one match isn't viable above it.
+ */
+export function findGeneratedRecordIndexById(resource: DatasetResource, id: string): number | null {
+  if (resource.count > MATERIALIZE_CUTOFF) return null;
+  const generated = generateRange(resource.schema, resource.seed, 0, resource.count);
+  const index = generated.findIndex((record) => record.id === id);
+  return index === -1 ? null : index;
 }

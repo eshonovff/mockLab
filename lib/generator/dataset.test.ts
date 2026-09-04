@@ -4,7 +4,9 @@ import type { ParsedQuery } from "../query";
 import {
   InMemoryLruDatasetCache,
   SORT_FILTER_DISABLED_NOTICE,
+  findGeneratedRecordIndexById,
   getDataset,
+  getRecordById,
   type DatasetOverride,
   type DatasetResource,
 } from "./dataset";
@@ -468,5 +470,135 @@ describe("getDataset — caching", () => {
     // Bumping dataVersion changes the cache key -> recomputes, this time with no overrides.
     const third = getDataset({ ...resource, dataVersion: 2 }, [], baseQuery({ limit: 10 }), cache);
     expect(third.totalCount).toBe(10);
+  });
+});
+
+describe("getRecordById — at or below the 10k cutoff", () => {
+  const resource: DatasetResource = {
+    id: "r11",
+    schema: SCHEMA,
+    seed: "seed-11",
+    count: 10,
+    dataVersion: 1,
+  };
+
+  it("finds a plain generated record by id", () => {
+    const target = generateRecord(SCHEMA, "seed-11", 3);
+    const found = getRecordById(resource, [], target.id as string, new InMemoryLruDatasetCache());
+    expect(found).toEqual(target);
+  });
+
+  it("finds an overridden record by its (unchanged) id", () => {
+    const replacement = { id: "custom-id", title: "REPLACED", status: "draft", price: 999 };
+    const overrides: DatasetOverride[] = [
+      { recordId: "custom-id", recordIndex: 3, data: replacement, deleted: false, isNew: false },
+    ];
+    const found = getRecordById(resource, overrides, "custom-id", new InMemoryLruDatasetCache());
+    expect(found).toEqual(replacement);
+  });
+
+  it("finds a new (POST-created) record by id", () => {
+    const newRecord = { id: "new-1", title: "brand new", status: "draft", price: 1 };
+    const overrides: DatasetOverride[] = [
+      { recordId: "new-1", recordIndex: null, data: newRecord, deleted: false, isNew: true },
+    ];
+    const found = getRecordById(resource, overrides, "new-1", new InMemoryLruDatasetCache());
+    expect(found).toEqual(newRecord);
+  });
+
+  it("returns null for a deleted record's id", () => {
+    const target = generateRecord(SCHEMA, "seed-11", 0);
+    const overrides: DatasetOverride[] = [
+      { recordId: String(target.id), recordIndex: 0, data: null, deleted: true, isNew: false },
+    ];
+    const found = getRecordById(
+      resource,
+      overrides,
+      target.id as string,
+      new InMemoryLruDatasetCache(),
+    );
+    expect(found).toBeNull();
+  });
+
+  it("returns null for an id that doesn't exist at all", () => {
+    const found = getRecordById(resource, [], "totally-made-up-id", new InMemoryLruDatasetCache());
+    expect(found).toBeNull();
+  });
+});
+
+describe("getRecordById — above the 10k cutoff", () => {
+  const resource: DatasetResource = {
+    id: "r12",
+    schema: SCHEMA,
+    seed: "seed-12",
+    count: 50_000,
+    dataVersion: 1,
+  };
+
+  it("finds an overridden record without regenerating anything", () => {
+    const replacement = { id: "custom-id", title: "REPLACED", status: "draft", price: 999 };
+    const overrides: DatasetOverride[] = [
+      {
+        recordId: "custom-id",
+        recordIndex: 12345,
+        data: replacement,
+        deleted: false,
+        isNew: false,
+      },
+    ];
+    const found = getRecordById(resource, overrides, "custom-id");
+    expect(found).toEqual(replacement);
+  });
+
+  it("finds a new (POST-created) record", () => {
+    const newRecord = { id: "new-1", title: "brand new", status: "draft", price: 1 };
+    const overrides: DatasetOverride[] = [
+      { recordId: "new-1", recordIndex: null, data: newRecord, deleted: false, isNew: true },
+    ];
+    const found = getRecordById(resource, overrides, "new-1");
+    expect(found).toEqual(newRecord);
+  });
+
+  it("returns null for a plain generated record that was never overridden — the accepted v1 limitation", () => {
+    // A record that genuinely exists in the virtual dataset (any real index would do) still
+    // can't be found above the cutoff without an override — this is the documented, deliberate
+    // tradeoff, not a bug: confirming it returns null, not that it throws or hangs.
+    const target = generateRecord(SCHEMA, "seed-12", 42);
+    const found = getRecordById(resource, [], target.id as string);
+    expect(found).toBeNull();
+  });
+
+  it("returns null for a deleted override's id", () => {
+    const overrides: DatasetOverride[] = [
+      { recordId: "gone", recordIndex: 5, data: null, deleted: true, isNew: false },
+    ];
+    expect(getRecordById(resource, overrides, "gone")).toBeNull();
+  });
+});
+
+describe("findGeneratedRecordIndexById", () => {
+  const resource: DatasetResource = {
+    id: "r13",
+    schema: SCHEMA,
+    seed: "seed-13",
+    count: 20,
+    dataVersion: 1,
+  };
+
+  it("finds the correct index for a plain generated record", () => {
+    const target = generateRecord(SCHEMA, "seed-13", 7);
+    expect(findGeneratedRecordIndexById(resource, target.id as string)).toBe(7);
+  });
+
+  it("returns null for an id that was never generated", () => {
+    expect(findGeneratedRecordIndexById(resource, "not-a-real-id")).toBeNull();
+  });
+
+  it("returns null unconditionally above the cutoff, without attempting to search", () => {
+    const bigResource: DatasetResource = { ...resource, count: 50_000 };
+    const target = generateRecord(SCHEMA, "seed-13", 42);
+    // Even though this id genuinely exists at index 42, above the cutoff this never searches
+    // for it — same accepted limitation as getRecordById.
+    expect(findGeneratedRecordIndexById(bigResource, target.id as string)).toBeNull();
   });
 });
