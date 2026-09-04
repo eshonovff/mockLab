@@ -60,4 +60,24 @@ describe("InMemoryRateLimiter", () => {
     expect(second.allowed).toBe(false);
     expect(second.retryAfterSeconds).toBe(6); // 10s window - 4s elapsed, rounded up
   });
+
+  it("counts down `remaining` as the budget is spent, reaching 0 exactly when blocked", () => {
+    const limiter = new InMemoryRateLimiter(3, 60_000);
+
+    expect(limiter.check("user-1").remaining).toBe(2);
+    expect(limiter.check("user-1").remaining).toBe(1);
+    expect(limiter.check("user-1").remaining).toBe(0);
+    expect(limiter.check("user-1").remaining).toBe(0); // blocked — still 0, not negative
+  });
+
+  it("resets `remaining` to the full limit once the window elapses", () => {
+    const limiter = new InMemoryRateLimiter(2, 10_000);
+
+    limiter.check("user-1");
+    expect(limiter.check("user-1").remaining).toBe(0);
+
+    vi.advanceTimersByTime(10_000);
+
+    expect(limiter.check("user-1").remaining).toBe(1); // a fresh window, one request already spent
+  });
 });

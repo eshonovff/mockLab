@@ -5,7 +5,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getDataset, type DatasetOverride } from "@/lib/generator/dataset";
 import type { ResourceSchema } from "@/lib/generator/record";
 import { jsonError } from "@/lib/http";
-import { CORS_HEADERS, CORS_PREFLIGHT_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
+import {
+  CORS_PREFLIGHT_HEADERS,
+  resolveProjectAndResource,
+  withRateLimitHeaders,
+} from "@/lib/mock-api";
 import { db } from "@/lib/db";
 import { parseQuery } from "@/lib/query";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
@@ -42,21 +46,22 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) {
-    return jsonError(404, "Not found", undefined, CORS_HEADERS);
+    return jsonError(404, "Not found", undefined, rateLimitHeaders);
   }
 
   const parsedQuery = parseQuery(request.nextUrl.searchParams);
   if (!parsedQuery.success) {
-    return jsonError(422, "Validation failed", parsedQuery.errors, CORS_HEADERS);
+    return jsonError(422, "Validation failed", parsedQuery.errors, rateLimitHeaders);
   }
 
   const overrides = await db.override.findMany({
@@ -86,7 +91,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   );
 
   const headers: Record<string, string> = {
-    ...CORS_HEADERS,
+    ...rateLimitHeaders,
     "X-Total-Count": String(dataset.totalCount),
     "X-Page": String(parsedQuery.data.page),
     "X-Limit": String(parsedQuery.data.limit),
@@ -106,16 +111,17 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) {
-    return jsonError(404, "Not found", undefined, CORS_HEADERS);
+    return jsonError(404, "Not found", undefined, rateLimitHeaders);
   }
 
   const body: unknown = await request.json().catch(() => null);
@@ -124,7 +130,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   // development sends. Only the outer shape (a JSON object, not an array/primitive/unparseable
   // body) is checked, since Override.data has to be an object for the merge logic to work.
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
-    return jsonError(400, "Request body must be a JSON object", undefined, CORS_HEADERS);
+    return jsonError(400, "Request body must be a JSON object", undefined, rateLimitHeaders);
   }
 
   const id = randomUUID();
@@ -152,5 +158,5 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }),
   ]);
 
-  return NextResponse.json(record, { status: 201, headers: CORS_HEADERS });
+  return NextResponse.json(record, { status: 201, headers: rateLimitHeaders });
 }

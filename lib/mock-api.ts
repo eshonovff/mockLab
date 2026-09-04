@@ -19,7 +19,7 @@ import { db } from "@/lib/db";
 export const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Expose-Headers":
-    "X-Total-Count, X-Page, X-Limit, Link, X-MockLab-Notice, Retry-After",
+    "X-Total-Count, X-Page, X-Limit, Link, X-MockLab-Notice, Retry-After, X-RateLimit-Remaining",
 };
 
 // Task 5.3: the *same* full method/header set is advertised by both routes' OPTIONS handlers,
@@ -32,6 +32,17 @@ export const CORS_PREFLIGHT_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Accept",
 };
+
+/**
+ * Task 5.4: every mock-API response — not just a 429 — carries `X-RateLimit-Remaining`, so a
+ * well-behaved client can back off proactively instead of only ever finding out it's over
+ * budget after already being blocked. Built once per request right after the rate-limit check,
+ * then reused for every response path in that handler (success or error) instead of a bare
+ * `CORS_HEADERS` reference.
+ */
+export function withRateLimitHeaders(remaining: number): Record<string, string> {
+  return { ...CORS_HEADERS, "X-RateLimit-Remaining": String(remaining) };
+}
 
 export type ResolvedResource = {
   project: { id: string };

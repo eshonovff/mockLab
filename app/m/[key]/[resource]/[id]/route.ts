@@ -9,7 +9,11 @@ import {
 } from "@/lib/generator/dataset";
 import type { ResourceSchema } from "@/lib/generator/record";
 import { jsonError } from "@/lib/http";
-import { CORS_HEADERS, CORS_PREFLIGHT_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
+import {
+  CORS_PREFLIGHT_HEADERS,
+  resolveProjectAndResource,
+  withRateLimitHeaders,
+} from "@/lib/mock-api";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
 import type { Prisma } from "@prisma/client";
 
@@ -140,81 +144,84 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName, id } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
-  if (!resolved) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   const overrides = await fetchOverrides(resolved.resource.id);
   const record = getRecordById(toDatasetResource(resolved.resource), overrides, id);
 
-  if (!record) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!record) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
-  return NextResponse.json(record, { headers: CORS_HEADERS });
+  return NextResponse.json(record, { headers: rateLimitHeaders });
 }
 
 export async function PUT(request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName, id } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
-  if (!resolved) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   const body: unknown = await request.json().catch(() => null);
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
-    return jsonError(400, "Request body must be a JSON object", undefined, CORS_HEADERS);
+    return jsonError(400, "Request body must be a JSON object", undefined, rateLimitHeaders);
   }
 
   const datasetResource = toDatasetResource(resolved.resource);
   const target = await resolveWriteTarget(resolved.resource.id, datasetResource, id);
-  if (!target) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!target) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   // PUT is a full replace — the body becomes the entire record. `id` always wins over anything
   // the client sent, same rule as everywhere else a record's id is decided (CLAUDE.md §3.3).
   const record = { ...body, id };
   await upsertOverrideData(resolved.resource.id, id, target, record);
 
-  return NextResponse.json(record, { headers: CORS_HEADERS });
+  return NextResponse.json(record, { headers: rateLimitHeaders });
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName, id } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
-  if (!resolved) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   const body: unknown = await request.json().catch(() => null);
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
-    return jsonError(400, "Request body must be a JSON object", undefined, CORS_HEADERS);
+    return jsonError(400, "Request body must be a JSON object", undefined, rateLimitHeaders);
   }
 
   const datasetResource = toDatasetResource(resolved.resource);
   const overrides = await fetchOverrides(resolved.resource.id);
   const current = getRecordById(datasetResource, overrides, id);
-  if (!current) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!current) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   const target = await resolveWriteTarget(resolved.resource.id, datasetResource, id);
-  if (!target) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!target) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   // PATCH merges onto the current record rather than replacing it — `current` already carries
   // the record's real field values (generated or previously overridden), so a partial body only
@@ -222,28 +229,29 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const record = { ...current, ...body, id };
   await upsertOverrideData(resolved.resource.id, id, target, record);
 
-  return NextResponse.json(record, { headers: CORS_HEADERS });
+  return NextResponse.json(record, { headers: rateLimitHeaders });
 }
 
 export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const { key, resource: resourceName, id } = await params;
 
   const rateLimit = mockApiRateLimiter.check(key);
+  const rateLimitHeaders = withRateLimitHeaders(rateLimit.remaining);
   if (!rateLimit.allowed) {
     return jsonError(429, "Too many requests", undefined, {
-      ...CORS_HEADERS,
+      ...rateLimitHeaders,
       "Retry-After": String(rateLimit.retryAfterSeconds),
     });
   }
 
   const resolved = await resolveProjectAndResource(key, resourceName);
-  if (!resolved) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   const datasetResource = toDatasetResource(resolved.resource);
   const target = await resolveWriteTarget(resolved.resource.id, datasetResource, id);
-  if (!target) return jsonError(404, "Not found", undefined, CORS_HEADERS);
+  if (!target) return jsonError(404, "Not found", undefined, rateLimitHeaders);
 
   await markOverrideDeleted(resolved.resource.id, id, target);
 
-  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+  return new NextResponse(null, { status: 204, headers: rateLimitHeaders });
 }

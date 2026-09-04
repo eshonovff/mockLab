@@ -6,6 +6,8 @@ export type RateLimitResult = {
   allowed: boolean;
   /** Seconds until the next request from this key would be allowed. 0 when `allowed` is true. */
   retryAfterSeconds: number;
+  /** Requests left in the current window after this one. 0 whenever `allowed` is false. */
+  remaining: number;
 };
 
 export interface RateLimiter {
@@ -32,16 +34,16 @@ export class InMemoryRateLimiter implements RateLimiter {
 
     if (!entry || now - entry.windowStart >= this.windowMs) {
       this.hits.set(key, { count: 1, windowStart: now });
-      return { allowed: true, retryAfterSeconds: 0 };
+      return { allowed: true, retryAfterSeconds: 0, remaining: this.limit - 1 };
     }
 
     if (entry.count < this.limit) {
       entry.count++;
-      return { allowed: true, retryAfterSeconds: 0 };
+      return { allowed: true, retryAfterSeconds: 0, remaining: this.limit - entry.count };
     }
 
     const retryAfterSeconds = Math.ceil((entry.windowStart + this.windowMs - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
+    return { allowed: false, retryAfterSeconds, remaining: 0 };
   }
 }
 
