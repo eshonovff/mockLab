@@ -12,7 +12,14 @@ import { PrevNextLinks } from "@/components/docs/prev-next-links";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getDocPage, listDocPages } from "@/lib/docs/content";
+import { env } from "@/lib/env";
 import type { Locale } from "@/lib/locales";
+import {
+  buildBreadcrumbListJsonLd,
+  buildTechArticleJsonLd,
+  serializeJsonLd,
+} from "@/lib/seo/jsonld";
+import { buildMetadata } from "@/lib/seo/metadata";
 
 type RouteParams = { locale: string; slug?: string[] };
 
@@ -41,16 +48,23 @@ export async function generateMetadata({
   const pages = await listDocPages(locale as Locale);
   const activeSlug = slug?.[0] ?? pages[0]?.slug;
   const page = pages.find((candidate) => candidate.slug === activeSlug);
+  if (!page) return {};
 
-  // Full canonical/alternates/JSON-LD metadata is task 7.1's shared `lib/seo/metadata.ts`
-  // helper, which doesn't exist yet — matching the same title/description-only pattern already
-  // used by the login/register pages ahead of that helper landing.
-  return page ? { title: page.title, description: page.description } : {};
+  // The bare `/docs` route and `/docs/{firstPageSlug}` render identical content — canonicalizing
+  // both to the real slugged path (never `/docs` itself) avoids declaring two indexable URLs for
+  // the same page.
+  return buildMetadata({
+    locale: locale as Locale,
+    path: `/docs/${page.slug}`,
+    title: page.title,
+    description: page.description,
+  });
 }
 
 export default async function DocsPage({ params }: { params: Promise<RouteParams> }) {
   const { locale, slug } = await params;
   const t = await getTranslations("docs");
+  const tShell = await getTranslations("shell");
   const pages = await listDocPages(locale as Locale);
 
   if (pages.length === 0) {
@@ -75,6 +89,22 @@ export default async function DocsPage({ params }: { params: Promise<RouteParams
 
   const { Component } = page;
 
+  // CLAUDE.md §8.5: "TechArticle + BreadcrumbList on each docs page," emitted via a
+  // <script type="application/ld+json"> in this server component — the page itself owns this,
+  // `lib/seo/jsonld.ts` only supplies the plain data (task 7.1).
+  const canonicalUrl = `${env.NEXT_PUBLIC_SITE_URL}/${locale}/docs/${page.slug}`;
+  const techArticleJsonLd = buildTechArticleJsonLd({
+    locale: locale as Locale,
+    url: canonicalUrl,
+    headline: page.title,
+    description: page.description,
+  });
+  const breadcrumbJsonLd = buildBreadcrumbListJsonLd([
+    { name: t("home"), url: `${env.NEXT_PUBLIC_SITE_URL}/${locale}` },
+    { name: tShell("docs"), url: `${env.NEXT_PUBLIC_SITE_URL}/${locale}/docs` },
+    { name: page.title, url: canonicalUrl },
+  ]);
+
   // The doc-content wrapper for CodeSnippetTabs (task 6.4) — lets an .mdx file write just
   // `<CodeSnippetTabs snippets={{...}} />` with no copy-button strings of its own, reusing the
   // same `docs.*` translations CodeBlock's copy button already relies on. Defined per-request
@@ -92,6 +122,14 @@ export default async function DocsPage({ params }: { params: Promise<RouteParams
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(techArticleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <Link
         href="/"
         className="mb-6 inline-flex w-fit items-center gap-1 text-caption text-ink-muted hover:text-ink"

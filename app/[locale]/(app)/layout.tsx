@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import type { ReactNode } from "react";
 
@@ -7,6 +8,13 @@ import { TopBar } from "@/components/shell/top-bar";
 import { redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/auth";
 import type { Locale } from "@/lib/locales";
+
+// CLAUDE.md §8.1: "Dashboard and admin are noindex." Applies to every route under this layout —
+// no per-page title/description to build via `lib/seo/metadata.ts` (task 7.1), since none of
+// these pages are meant to rank; this is the one metadata concern that actually applies here.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AppLayout({
   children,

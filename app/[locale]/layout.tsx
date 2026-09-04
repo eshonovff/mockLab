@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
 import { brand } from "@/lib/brand";
+import { env } from "@/lib/env";
 import type { Locale } from "@/lib/locales";
 
 import "../globals.css";
@@ -29,7 +30,14 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// `metadataBase` is a one-time root-level concern (task 7.1): resolves any relative URL a page's
+// own metadata might set (an og:image path, for instance) against the real site origin instead
+// of Next's own localhost default. `lib/seo/metadata.ts`'s `buildMetadata` always builds fully
+// qualified URLs itself, so nothing downstream actually depends on this — it's here so a future
+// page that doesn't go through that helper still resolves correctly instead of silently pointing
+// at `localhost`.
 export const metadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: brand.name,
   description: brand.tagline.en,
 };
