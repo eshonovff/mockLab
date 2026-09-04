@@ -309,6 +309,53 @@ describe("getDataset — filter / search / sort / paginate", () => {
     expect(result.records.map((r) => r.title)).toEqual(["Red Chair", "Blue Table", "Green Chair"]);
   });
 
+  it('filters and sorts numerically on a currency-formatted string value (e.g. the price field type\'s own "$91.69" shape)', () => {
+    // Regression test: found live against the real /m/{key}/{resource} endpoint (task 5.1) —
+    // dataset.test.ts's other price fixtures use plain numbers, which never exercised the
+    // `price` field type's actual output shape and let this slip through 3.5's own test suite.
+    // A naive `Number("$91.69")` is NaN, which used to make toComparable fall back to comparing
+    // "$91.69" as a plain string against the filter value's own parsed number — comparing a
+    // string to a number always took the string-comparison branch, and "$" sorts before every
+    // digit, so `price_gte=50` silently matched nothing at all, for any price.
+    const formattedResource: DatasetResource = { ...resource, seed: "formatted-price-seed" };
+    const formattedRows = [
+      { title: "A", price: "$38.60" },
+      { title: "B", price: "$91.69" },
+      { title: "C", price: "$87.55" },
+      { title: "D", price: "$53.79" },
+      { title: "E", price: "$40.80" },
+    ];
+    const formattedOverrides: DatasetOverride[] = formattedRows.map((data, index) => ({
+      recordId: `fid-${index}`,
+      recordIndex: index,
+      data: { id: `fid-${index}`, ...data },
+      deleted: false,
+      isNew: false,
+    }));
+
+    const filtered = getDataset(
+      formattedResource,
+      formattedOverrides,
+      baseQuery({ limit: 10, filters: [{ field: "price", operator: "gte", value: "50" }] }),
+      new InMemoryLruDatasetCache(),
+    );
+    expect(filtered.records.map((r) => r.title)).toEqual(["B", "C", "D"]);
+
+    const sorted = getDataset(
+      formattedResource,
+      formattedOverrides,
+      baseQuery({ limit: 10, sort: "price", order: "asc" }),
+      new InMemoryLruDatasetCache(),
+    );
+    expect(sorted.records.map((r) => r.price)).toEqual([
+      "$38.60",
+      "$40.80",
+      "$53.79",
+      "$87.55",
+      "$91.69",
+    ]);
+  });
+
   it("filters by like, case-insensitively", () => {
     const result = getDataset(
       resource,

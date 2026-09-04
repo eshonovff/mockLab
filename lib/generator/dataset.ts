@@ -133,17 +133,30 @@ function mergeOverrides(
 // ---------------------------------------------------------------------------------------------
 // Filter / search / sort (read-path step 3) — only ever run on the <=10k materialized path.
 
+// Matches a string containing exactly one numeric run — an optional leading "-", digits, an
+// optional single decimal part — with arbitrary non-digit text allowed before and/or after it:
+// "$91.69", "91.69 USD", "-3" all match and extract their number. A second digit run elsewhere
+// (e.g. "2.1.0", a version string) leaves a stray digit outside the match, so it correctly
+// doesn't match at all and falls through to plain string comparison instead.
+const FORMATTED_NUMBER_PATTERN = /^[^-\d]*(-?\d+(?:\.\d+)?)[^\d]*$/;
+
 /**
- * A value that sorts/compares sensibly: numeric strings compare as numbers (so "9" < "10"),
- * everything else falls back to string comparison (which also happens to do the right thing
- * for ISO date strings).
+ * A value that sorts/compares sensibly: plain numeric strings compare as numbers, and so do
+ * formatted ones like a `price` field's `"$91.69"` — extracting the numeric part first is what
+ * makes `price_gte=50` actually work for a currency-symbol-prefixed price. Everything else
+ * falls back to string comparison (which also happens to do the right thing for ISO date
+ * strings).
  */
 function toComparable(value: unknown): number | string {
   if (typeof value === "number") return value;
   if (typeof value === "boolean") return value ? 1 : 0;
   const text = String(value);
-  const numeric = Number(text);
-  return text.trim() !== "" && Number.isFinite(numeric) ? numeric : text;
+  const match = text.match(FORMATTED_NUMBER_PATTERN);
+  if (match) {
+    const numeric = Number(match[1]);
+    if (Number.isFinite(numeric)) return numeric;
+  }
+  return text;
 }
 
 function compareComparable(a: number | string, b: number | string): number {

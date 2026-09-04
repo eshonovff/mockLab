@@ -58,3 +58,14 @@ export const previewRateLimiter: RateLimiter = new InMemoryRateLimiter(
   PREVIEW_RATE_LIMIT,
   PREVIEW_RATE_WINDOW_MS,
 );
+
+// The mock API itself (task 5.1): CLAUDE.md §9 gives an exact number for this one — "60
+// requests/minute per project key" — unlike the preview limiter above. Keyed by the project
+// key from the URL, never by session, since the mock API has no session at all (it's public).
+const MOCK_API_RATE_LIMIT = 60;
+const MOCK_API_RATE_WINDOW_MS = 60_000;
+
+export const mockApiRateLimiter: RateLimiter = new InMemoryRateLimiter(
+  MOCK_API_RATE_LIMIT,
+  MOCK_API_RATE_WINDOW_MS,
+);
