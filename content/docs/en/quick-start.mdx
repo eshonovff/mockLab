@@ -47,42 +47,26 @@ https://{{domain}}/m/{project-key}/{resource-name}
 
 So for the project and resource above:
 
-```js
-const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+Pick whichever client you actually use — every tab below does the exact same thing.
+
+<CodeSnippetTabs
+  snippets={{
+    fetch: `const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
 const products = await response.json();
 console.log(products[0]);
-// { id: "a1b2c3d4-...", title: "vivid", price: "$48.19", inStock: true }
-```
-
-In a React component with TanStack Query, the same call looks like this:
-
-```jsx
-import { useQuery } from "@tanstack/react-query";
-
-function ProductList() {
-  const {
-    data: products,
-    isPending,
-    isError,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
-  });
-
-  if (isPending) return <p>Loading…</p>;
-  if (isError) return <p>Something went wrong.</p>;
-
-  return (
-    <ul>
-      {products.map((product) => (
-        <li key={product.id}>
-          {product.title} — {product.price}
-        </li>
-      ))}
-    </ul>
-  );
-}
-```
+// { id: "a1b2c3d4-...", title: "vivid", price: "$48.19", inStock: true }`,
+    axios: `const { data: products } = await axios.get(
+  "https://{{domain}}/m/demo7k2m9x/products",
+);
+console.log(products[0]);`,
+    tanstackQuery: `const { data: products, isPending, isError } = useQuery({
+  queryKey: ["products"],
+  queryFn: () =>
+    fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+});`,
+    curl: `curl "https://{{domain}}/m/demo7k2m9x/products"`,
+  }}
+/>
 
 That's it — a real REST resource with pagination, filtering, sorting, and full CRUD, without a
 server of your own. From here: [Schema and field types](/docs/schema-and-field-types) covers

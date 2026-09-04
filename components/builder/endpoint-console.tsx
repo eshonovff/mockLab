@@ -1,8 +1,10 @@
 "use client";
 
+import { CodeIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { CodeSnippetTabs, type SnippetKey } from "@/components/code-snippet-tabs";
 import { CopyButton } from "@/components/dashboard/copy-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,6 +87,52 @@ async function resolveRecordId(baseUrl: string): Promise<string | null> {
   return typeof id === "string" ? id : null;
 }
 
+// Task 6.4: one `CodeSnippetTabs` block per endpoint, shown on demand. The URL uses the same
+// literal `:id` placeholder as the row's own reference URL above it — this is documentation of
+// the endpoint's shape for a developer to copy into their own code, not a replay of whatever id
+// a Send happened to resolve, so it stays a placeholder even after a real id has been resolved.
+// DELETE gets its own branch throughout: it's the one method here that returns `204 No Content`
+// (`app/m/[key]/[resource]/[id]/route.ts`), so its samples never call `.json()` on the response.
+function buildSnippets(endpoint: EndpointDef, baseUrl: string): Record<SnippetKey, string> {
+  const url = endpoint.needsId ? `${baseUrl}/:id` : baseUrl;
+  const jsUrl = endpoint.needsId ? `${baseUrl}/\${id}` : baseUrl;
+  const isDelete = endpoint.method === "DELETE";
+
+  const fetchInit = endpoint.hasBody
+    ? `, {\n  method: "${endpoint.method}",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({}),\n}`
+    : endpoint.method !== "GET"
+      ? `, { method: "${endpoint.method}" }`
+      : "";
+
+  const fetchSnippet = isDelete
+    ? `await fetch(\`${jsUrl}\`, { method: "DELETE" });`
+    : `const response = await fetch(\`${jsUrl}\`${fetchInit});\nconst data = await response.json();`;
+
+  const axiosMethod = endpoint.method.toLowerCase();
+  const axiosSnippet = isDelete
+    ? `await axios.delete(\`${jsUrl}\`);`
+    : endpoint.hasBody
+      ? `const { data } = await axios.${axiosMethod}(\`${jsUrl}\`, {});`
+      : `const { data } = await axios.${axiosMethod}(\`${jsUrl}\`);`;
+
+  const tanstackSnippet =
+    endpoint.method === "GET"
+      ? `const { data } = useQuery({\n  queryKey: ["records"${endpoint.needsId ? ", id" : ""}],\n  queryFn: () => fetch(\`${jsUrl}\`).then((res) => res.json()),\n});`
+      : `const mutation = useMutation({\n  mutationFn: () => fetch(\`${jsUrl}\`${fetchInit}),\n});`;
+
+  const curlFlag = endpoint.method === "GET" ? "" : ` -X ${endpoint.method}`;
+  const curlBody = endpoint.hasBody
+    ? ` \\\n  -H "Content-Type: application/json" \\\n  -d '{}'`
+    : "";
+
+  return {
+    fetch: fetchSnippet,
+    axios: axiosSnippet,
+    tanstackQuery: tanstackSnippet,
+    curl: `curl${curlFlag} "${url}"${curlBody}`,
+  };
+}
+
 export function EndpointConsole({ baseUrl }: { baseUrl: string }) {
   const t = useTranslations("builder");
 
@@ -95,6 +143,7 @@ export function EndpointConsole({ baseUrl }: { baseUrl: string }) {
   const [resolvedId, setResolvedId] = useState<string | null>(null);
   const [pending, setPending] = useState<Partial<Record<EndpointId, boolean>>>({});
   const [results, setResults] = useState<Partial<Record<EndpointId, EndpointResult>>>({});
+  const [snippetOpen, setSnippetOpen] = useState<Partial<Record<EndpointId, boolean>>>({});
 
   async function handleSend(endpoint: EndpointDef) {
     setPending((prev) => ({ ...prev, [endpoint.id]: true }));
@@ -145,9 +194,13 @@ export function EndpointConsole({ baseUrl }: { baseUrl: string }) {
           const displayUrl = endpoint.needsId ? `${baseUrl}/:id` : baseUrl;
           const result = results[endpoint.id];
           const isPending = pending[endpoint.id] ?? false;
+          const isSnippetOpen = snippetOpen[endpoint.id] ?? false;
 
           return (
-            <div key={endpoint.id} className="flex flex-col gap-2 rounded-control border border-line p-3">
+            <div
+              key={endpoint.id}
+              className="flex flex-col gap-2 rounded-control border border-line p-3"
+            >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <Badge variant={METHOD_BADGE_VARIANT[endpoint.method]}>{endpoint.method}</Badge>
@@ -155,17 +208,40 @@ export function EndpointConsole({ baseUrl }: { baseUrl: string }) {
                     {t(`endpoints.${endpoint.id}`)}
                   </span>
                 </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  loading={isPending}
-                  onClick={() => handleSend(endpoint)}
-                  className="shrink-0"
-                >
-                  {t("endpoints.send")}
-                </Button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    iconOnly
+                    aria-label={isSnippetOpen ? t("endpoints.hideCode") : t("endpoints.showCode")}
+                    aria-pressed={isSnippetOpen}
+                    onClick={() =>
+                      setSnippetOpen((prev) => ({ ...prev, [endpoint.id]: !isSnippetOpen }))
+                    }
+                  >
+                    <CodeIcon aria-hidden="true" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    loading={isPending}
+                    onClick={() => handleSend(endpoint)}
+                  >
+                    {t("endpoints.send")}
+                  </Button>
+                </div>
               </div>
+
+              {isSnippetOpen && (
+                <CodeSnippetTabs
+                  snippets={buildSnippets(endpoint, baseUrl)}
+                  copyLabel={t("endpoints.copyCode")}
+                  copiedToast={t("endpoints.codeCopied")}
+                  errorToast={t("endpoints.codeCopyError")}
+                />
+              )}
 
               <div className="flex items-center gap-2 rounded-control border border-line bg-muted/50 px-3 py-2">
                 <code className="min-w-0 flex-1 truncate font-mono text-caption text-ink-muted">

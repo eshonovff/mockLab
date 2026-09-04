@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { CodeSnippetTabs, type SnippetKey } from "@/components/code-snippet-tabs";
 import { CodeBlock } from "@/components/docs/code-block";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import { DocsToc } from "@/components/docs/docs-toc";
@@ -74,6 +75,21 @@ export default async function DocsPage({ params }: { params: Promise<RouteParams
 
   const { Component } = page;
 
+  // The doc-content wrapper for CodeSnippetTabs (task 6.4) — lets an .mdx file write just
+  // `<CodeSnippetTabs snippets={{...}} />` with no copy-button strings of its own, reusing the
+  // same `docs.*` translations CodeBlock's copy button already relies on. Defined per-request
+  // inside this async Server Component (not module scope) since it closes over `t`.
+  function DocsCodeSnippetTabs({ snippets }: { snippets: Record<SnippetKey, string> }) {
+    return (
+      <CodeSnippetTabs
+        snippets={snippets}
+        copyLabel={t("copyCode")}
+        copiedToast={t("codeCopied")}
+        errorToast={t("copyError")}
+      />
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link
@@ -94,7 +110,7 @@ export default async function DocsPage({ params }: { params: Promise<RouteParams
         <article className="flex min-w-0 flex-col gap-8">
           <h1 className="text-display text-ink">{page.title}</h1>
           <div className="docs-prose">
-            <Component components={{ pre: CodeBlock }} />
+            <Component components={{ pre: CodeBlock, CodeSnippetTabs: DocsCodeSnippetTabs }} />
           </div>
           <PrevNextLinks previous={previous} next={next} />
         </article>
