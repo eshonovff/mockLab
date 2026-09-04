@@ -235,8 +235,8 @@
   },
   "home": {
     "meta": {
-      "title": "Yozuvlar soniga cheklovsiz soxta REST API generatori",
-      "description": "Resursni tasvirlang — darhol ishlaydigan REST endpoint oling. To‘liq CRUD, sahifalash, filtrlash va qidiruv — ma’lumotlar so‘rov vaqtida generatsiya qilinadi, shuning uchun bir million yozuv ham o‘nta bilan bir xil narxda."
+      "title": "Cheklovsiz soxta REST API generatori frontend uchun",
+      "description": "Frontendni sinash uchun soxta REST API generatori: to‘liq CRUD, sahifalash, filtrlash va qidiruv. Ma’lumot so‘rov vaqtida generatsiya qilinadi, cheklov yo‘q."
     },
     "header": {
       "docs": "Hujjatlar",

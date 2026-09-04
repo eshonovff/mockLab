@@ -234,8 +234,8 @@
   },
   "home": {
     "meta": {
-      "title": "Fake REST API generator with no record limits",
-      "description": "Define a resource, get a live REST endpoint instantly. Full CRUD, pagination, filtering and search — generated on demand, so a million records cost the same as ten."
+      "title": "Fake REST API Generator With No Record Limit",
+      "description": "Generate a mock REST API for frontend testing and prototyping — full CRUD, pagination, filtering, and search, with data generated on demand and no record limit."
     },
     "header": {
       "docs": "Docs",
