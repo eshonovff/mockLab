@@ -215,5 +215,16 @@
       "saveError": "O‘zgarishlar saqlanmadi. Qayta urinib ko‘ring.",
       "reorderError": "Yangi tartib saqlanmadi — bekor qilindi."
     }
+  },
+  "docs": {
+    "backToHome": "Bosh sahifaga",
+    "menu": "Menyu",
+    "onThisPage": "Shu sahifada",
+    "previous": "Oldingi",
+    "next": "Keyingi",
+    "copyCode": "Kodni nusxalash",
+    "codeCopied": "Kod nusxalandi",
+    "copyError": "Kodni nusxalab bo‘lmadi",
+    "empty": "Hali hujjatlar yo‘q."
   }
 }

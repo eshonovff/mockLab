@@ -222,6 +222,122 @@
   }
 }
 
+/* Docs page body typography (task 6.1). Hand-written against the CLAUDE.md §6 tokens rather
+   than a Tailwind typography plugin — that plugin ships its own gray palette and would need
+   near-total overriding to stay within the token set anyway, and a config-file addition besides
+   (CLAUDE.md §2: "CSS-first config, no config file"). Code blocks (`pre`) are excluded here —
+   `components/docs/code-block.tsx` owns their layout directly since the copy button positions
+   against it. */
+.docs-prose {
+  & > :first-child {
+    margin-top: 0;
+  }
+
+  & h2 {
+    margin-top: 32px;
+    margin-bottom: 12px;
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    color: var(--ink);
+  }
+
+  & h3 {
+    margin-top: 24px;
+    margin-bottom: 8px;
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    color: var(--ink);
+  }
+
+  /* rehype-autolink-headings wraps each heading's own text in a self-referencing <a href="#id">
+     (lib/docs/mdx.ts's `behavior: "wrap"`) — without this, the generic `& a` rule below makes
+     every heading render as an underlined accent-colored link, which reads as ordinary body
+     hyperlink, not a heading. */
+  & h2 a,
+  & h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  & p {
+    margin-bottom: 16px;
+  }
+
+  & ul,
+  & ol {
+    margin-bottom: 16px;
+    padding-left: 24px;
+  }
+
+  & ul {
+    list-style: disc;
+  }
+
+  & ol {
+    list-style: decimal;
+  }
+
+  & li {
+    margin-bottom: 4px;
+  }
+
+  & a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+    text-decoration: underline;
+  }
+
+  & strong {
+    font-weight: 600;
+  }
+
+  /* Inline code only — a fenced code block's own <code> lives inside code-block.tsx's <pre>
+     and is styled by shiki's own per-token spans, not this rule. */
+  & :not(pre) > code {
+    border-radius: var(--radius-sm);
+    background: var(--muted);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+  }
+
+  & blockquote {
+    margin-bottom: 16px;
+    border-left: 2px solid var(--line);
+    padding-left: 16px;
+    color: var(--ink-muted);
+  }
+
+  & hr {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    border-color: var(--line);
+  }
+
+  & table {
+    margin-bottom: 16px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-caption);
+  }
+
+  & th,
+  & td {
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  & th {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  & pre {
+    margin-bottom: 16px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

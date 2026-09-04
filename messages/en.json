@@ -214,5 +214,16 @@
       "saveError": "Couldn't save your changes. Try again.",
       "reorderError": "Couldn't save the new order — it's been reverted."
     }
+  },
+  "docs": {
+    "backToHome": "Back to home",
+    "menu": "Menu",
+    "onThisPage": "On this page",
+    "previous": "Previous",
+    "next": "Next",
+    "copyCode": "Copy code",
+    "codeCopied": "Code copied",
+    "copyError": "Couldn't copy the code",
+    "empty": "No documentation pages yet."
   }
 }
