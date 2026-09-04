@@ -7,6 +7,10 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    // Task 7.2: provisions the one permanent demo project/resource the marketing home page's
+    // hero widget calls. Idempotent (`prisma/seed.ts` upserts) — safe on every deploy, not just
+    // the first.
+    seed: "tsx prisma/seed.ts",
   },
   datasource: {
     url: process.env["DATABASE_URL"],

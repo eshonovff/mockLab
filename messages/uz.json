@@ -232,5 +232,128 @@
     "codeCopied": "Kod nusxalandi",
     "copyError": "Kodni nusxalab bo‘lmadi",
     "empty": "Hali hujjatlar yo‘q."
+  },
+  "home": {
+    "meta": {
+      "title": "Yozuvlar soniga cheklovsiz soxta REST API generatori",
+      "description": "Resursni tasvirlang — darhol ishlaydigan REST endpoint oling. To‘liq CRUD, sahifalash, filtrlash va qidiruv — ma’lumotlar so‘rov vaqtida generatsiya qilinadi, shuning uchun bir million yozuv ham o‘nta bilan bir xil narxda."
+    },
+    "header": {
+      "docs": "Hujjatlar",
+      "logIn": "Kirish",
+      "getStarted": "Boshlash"
+    },
+    "hero": {
+      "headline": "Yozuvlari hech qachon tugamaydigan soxta REST API",
+      "subheadline": "Resursni tasvirlang — darhol ishlaydigan endpoint oling. To‘liq CRUD, sahifalash, filtrlash va qidiruv — ma’lumotlar so‘rov vaqtida generatsiya qilinadi, shuning uchun bir million yozuv ham o‘nta bilan bir xil narxda.",
+      "cta": "Birinchi endpointingizni yarating",
+      "demo": {
+        "label": "Haqiqiy, jonli so‘rov",
+        "idle": "Bu haqiqiy {brand} endpointiga yuboriladi — na maket, na skrinshot.",
+        "run": "Ushbu so‘rovni yuborish",
+        "running": "Yuborilmoqda…",
+        "latency": "{ms} ms",
+        "error": "Demo endpointga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urinib ko‘ring.",
+        "retry": "Qayta urinish"
+      }
+    },
+    "steps": {
+      "title": "Qanday ishlaydi",
+      "step1": {
+        "title": "Ma’lumotingizni tasvirlang",
+        "body": "Resursga nom bering va maydonlar qo‘shing — matn, raqam, sana, rasm va boshqalar."
+      },
+      "step2": {
+        "title": "Jonli endpoint oling",
+        "body": "REST API-ingiz saqlagan zahoti ishga tushadi. Hech qanday deploy qadami yo‘q, sozlash shart emas."
+      },
+      "step3": {
+        "title": "Ustida quring",
+        "body": "To‘liq CRUD, sahifalash, saralash, filtrlash va qidiruv — xuddi haqiqiy backend kabi."
+      }
+    },
+    "fieldTypes": {
+      "title": "Kutgan har qanday maydon turi",
+      "subtitle": "Yigirma ikkita generatsiya qilinadigan maydon turi — UUID’dan tortib boshqa maydonlaringizga murojaat qiluvchi shablongacha.",
+      "uuid": { "label": "uuid", "example": "a1b2c3d4-5e6f-…" },
+      "fullName": { "label": "fullName", "example": "Amelia Nguyen" },
+      "email": { "label": "email", "example": "amelia@example.com" },
+      "price": { "label": "price", "example": "$48.19" },
+      "boolean": { "label": "boolean", "example": "true" },
+      "date": { "label": "date", "example": "2024-03-11" },
+      "enum": { "label": "enum", "example": "o‘zingiz belgilagan qiymatlardan biri" },
+      "image": { "label": "image", "example": "o‘lchami belgilangan rasm URL manzili" },
+      "city": { "label": "city", "example": "Toshkent" },
+      "template": { "label": "template", "example": "boshqa maydonlarni birlashtiradi" },
+      "viewAll": "Barcha maydon turlarini ko‘rish"
+    },
+    "comparison": {
+      "title": "Yozuvlar cheklanmagan — ataylab shunday",
+      "subtitle": "Ko‘pchilik soxta API vositalari haqiqiy qatorlarni haqiqiy ma’lumotlar bazasiga yozadi — aynan shuning uchun ular sizni bir necha yuzta yozuv bilan cheklaydi. {brand} har bir yozuvni so‘rov vaqtida seed asosida generatsiya qiladi — siz uni tahrirlamaguningizcha hech narsa saqlanmaydi.",
+      "typical": "Odatiy soxta API vositasi",
+      "us": "{brand}",
+      "rows": {
+        "limit": {
+          "label": "Yozuvlar chegarasi",
+          "typical": "Odatda bir necha yuzta",
+          "us": "Yo‘q"
+        },
+        "storage": {
+          "label": "Ma’lumot qanday hosil bo‘ladi",
+          "typical": "Oldindan yozilgan bazadagi qatorlar",
+          "us": "So‘rov vaqtida seed asosida generatsiya qilinadi"
+        },
+        "writes": {
+          "label": "Yozish imkoniyati",
+          "typical": "Ko‘pincha faqat o‘qish",
+          "us": "To‘liq CRUD, haqiqiy override’lar"
+        },
+        "determinism": {
+          "label": "Qayta yuborilgan so‘rovlar",
+          "typical": "Vositaga bog‘liq",
+          "us": "Har doim bayt-baytiga bir xil"
+        }
+      }
+    },
+    "faq": {
+      "title": "Tez-tez so‘raladigan savollar",
+      "items": {
+        "backend": {
+          "question": "Backend kodi yozishim kerakmi?",
+          "answer": "Yo‘q — resursga nom bering, maydonlar qo‘shing va darhol jonli REST endpoint olasiz. Na server, na ma’lumotlar bazasi migratsiyasi."
+        },
+        "limit": {
+          "question": "Haqiqatda nechta yozuv generatsiya qila olaman?",
+          "answer": "Qat’iy chegara yo‘q. Saralash, filtrlash va qidiruv har bir resursda 10 000 yozuvgacha avtomatik ishlaydi — undan yuqorida endpoint baribir to‘g‘ri sahifalanadi, faqat shu imkoniyatlarsiz. To‘liq tushuntirish hujjatlarda."
+        },
+        "edits": {
+          "question": "Ilovam orqali yozuvni tahrirlasam yoki o‘chirsam nima bo‘ladi?",
+          "answer": "O‘zgarishingiz generatsiya qilingan ma’lumot ustiga saqlanadi. Istalgan vaqtda resursni asl holatga qaytarishingiz mumkin."
+        },
+        "cors": {
+          "question": "API’ga to‘g‘ridan-to‘g‘ri brauzer JavaScript’idan murojaat qila olamanmi?",
+          "answer": "Ha — CORS har bir endpointda standart yoqilgan, hech qanday sozlash shart emas."
+        },
+        "free": {
+          "question": "Sinab ko‘rish uchun bank kartasi kerakmi?",
+          "answer": "Yo‘q — ro‘yxatdan o‘tish va birinchi endpointni yaratish uchun karta talab qilinmaydi."
+        },
+        "locale": {
+          "question": "Generatsiya qilingan ma’lumot boshqaruv panelidan boshqa tilda bo‘lishi mumkinmi?",
+          "answer": "Ha — har bir resursning o‘z ma’lumot tili bor, u boshqaruv panelida ishlatayotgan tilingizdan mustaqil."
+        }
+      }
+    },
+    "cta": {
+      "title": "Birinchi endpointingizgacha besh daqiqa qoldi",
+      "subtitle": "Hisob yarating va birinchi resursingizni tasvirlang — kartasiz, sozlashsiz.",
+      "button": "Birinchi endpointingizni yarating"
+    },
+    "footer": {
+      "tagline": "Yozuvlar soniga cheklovsiz soxta REST API.",
+      "docs": "Hujjatlar",
+      "language": "Til",
+      "copyright": "© {year} {brand}"
+    }
   }
 }

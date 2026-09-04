@@ -86,7 +86,16 @@ function Button({
       className={cn(buttonVariants({ variant, size, iconOnly, className }))}
       {...props}
     >
-      {iconOnly ? (
+      {asChild ? (
+        // Radix's Slot merges the button's own props (className, data-*, disabled, ...) onto
+        // its single child by cloning it — it requires exactly that one element, not a
+        // Fragment. Wrapping `children` in the icon-decoration markup below (as every other
+        // branch does) hands Slot a Fragment instead, and the merge silently no-ops: the
+        // rendered element keeps none of the button's classes. `asChild` is for "style this
+        // other element as a button" (a `Link`, most often) — icon/loading decoration isn't
+        // meaningful there, so `children` passes through untouched.
+        children
+      ) : iconOnly ? (
         // The button's own required aria-label is the accessible name — the icon itself is
         // always decorative here, hidden so it's never separately announced.
         <span aria-hidden="true">{loading ? spinner : children}</span>

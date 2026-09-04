@@ -231,5 +231,124 @@
     "codeCopied": "Code copied",
     "copyError": "Couldn't copy the code",
     "empty": "No documentation pages yet."
+  },
+  "home": {
+    "meta": {
+      "title": "Fake REST API generator with no record limits",
+      "description": "Define a resource, get a live REST endpoint instantly. Full CRUD, pagination, filtering and search — generated on demand, so a million records cost the same as ten."
+    },
+    "header": {
+      "docs": "Docs",
+      "logIn": "Log in",
+      "getStarted": "Get started"
+    },
+    "hero": {
+      "headline": "A fake REST API that never runs out of records",
+      "subheadline": "Define a resource, get a live endpoint instantly. Full CRUD, pagination, filtering, and search — generated on demand, so a million records cost the same as ten.",
+      "cta": "Create your first endpoint",
+      "demo": {
+        "label": "A real, live request",
+        "idle": "This calls a real {brand} endpoint — no mock data, no screenshot.",
+        "run": "Run this request",
+        "running": "Running…",
+        "latency": "{ms} ms",
+        "error": "Couldn't reach the demo endpoint. Check your connection and try again.",
+        "retry": "Try again"
+      }
+    },
+    "steps": {
+      "title": "How it works",
+      "step1": {
+        "title": "Describe your data",
+        "body": "Name a resource and add fields — text, numbers, dates, images, and more."
+      },
+      "step2": {
+        "title": "Get a live endpoint",
+        "body": "Your REST API is live the instant you save. No deploy step, nothing to configure."
+      },
+      "step3": {
+        "title": "Build against it",
+        "body": "Full CRUD, pagination, sorting, filtering, and search — exactly like a real backend."
+      }
+    },
+    "fieldTypes": {
+      "title": "Every field type you'd expect",
+      "subtitle": "Twenty-two generated field types, from a UUID to a template that references your other fields.",
+      "uuid": { "label": "uuid", "example": "a1b2c3d4-5e6f-…" },
+      "fullName": { "label": "fullName", "example": "Amelia Nguyen" },
+      "email": { "label": "email", "example": "amelia@example.com" },
+      "price": { "label": "price", "example": "$48.19" },
+      "boolean": { "label": "boolean", "example": "true" },
+      "date": { "label": "date", "example": "2024-03-11" },
+      "enum": { "label": "enum", "example": "one of your own values" },
+      "image": { "label": "image", "example": "a sized image URL" },
+      "city": { "label": "city", "example": "Tashkent" },
+      "template": { "label": "template", "example": "combines other fields" },
+      "viewAll": "See every field type"
+    },
+    "comparison": {
+      "title": "No record limit, on purpose",
+      "subtitle": "Most fake-API tools insert real rows into a real database, which is exactly why they cap you at a few hundred records. {brand} generates each record from a seed, at request time — nothing is stored until you edit it.",
+      "typical": "Typical fake-API tool",
+      "us": "{brand}",
+      "rows": {
+        "limit": { "label": "Record limit", "typical": "A few hundred, usually", "us": "None" },
+        "storage": {
+          "label": "How data is produced",
+          "typical": "Pre-seeded database rows",
+          "us": "Generated on demand from a seed"
+        },
+        "writes": {
+          "label": "Write support",
+          "typical": "Often read-only",
+          "us": "Full CRUD, real overrides"
+        },
+        "determinism": {
+          "label": "Repeat requests",
+          "typical": "Depends on the tool",
+          "us": "Byte-for-byte identical, always"
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": {
+        "backend": {
+          "question": "Do I need to write any backend code?",
+          "answer": "No — name a resource, add fields, and you get a live REST endpoint immediately. No server, no database migration."
+        },
+        "limit": {
+          "question": "How many records can I actually generate?",
+          "answer": "There's no hard cap. Sorting, filtering, and search work automatically up to 10,000 records per resource — above that, the endpoint still paginates correctly, just without those extras. See the docs for the full explanation."
+        },
+        "edits": {
+          "question": "What happens when I edit or delete a record through my app?",
+          "answer": "Your change is saved and layered on top of the generated data. Reset the resource any time to return to the clean, generated baseline."
+        },
+        "cors": {
+          "question": "Can I call the API straight from browser JavaScript?",
+          "answer": "Yes — CORS is enabled by default on every endpoint, with no configuration needed."
+        },
+        "free": {
+          "question": "Do I need a credit card to try it?",
+          "answer": "No — signing up and creating your first endpoint doesn't require one."
+        },
+        "locale": {
+          "question": "Can generated data be in a different language than my dashboard?",
+          "answer": "Yes — each resource has its own data locale, independent of whatever language you're using the dashboard in."
+        }
+      }
+    },
+    "cta": {
+      "title": "Your first endpoint is five minutes away",
+      "subtitle": "Create an account and describe your first resource — no credit card, no setup.",
+      "button": "Create your first endpoint"
+    },
+    "footer": {
+      "tagline": "Fake REST APIs without record limits.",
+      "docs": "Docs",
+      "language": "Language",
+      "copyright": "© {year} {brand}"
+    }
   }
 }
