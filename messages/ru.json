@@ -58,5 +58,34 @@
     "dialog": {
       "typeToConfirm": "Введите {word}, чтобы подтвердить"
     }
+  },
+  "dashboard": {
+    "title": "Проекты",
+    "hero": {
+      "label": "Ваш endpoint активен",
+      "copyUrl": "Скопировать базовый URL",
+      "copied": "Скопировано"
+    },
+    "card": {
+      "resourceCount": "{count, plural, one {# ресурс} few {# ресурса} many {# ресурсов} other {# ресурсов}}",
+      "createdOn": "Создан {date}",
+      "copyUrl": "Скопировать базовый URL",
+      "copied": "Скопировано"
+    },
+    "newProject": {
+      "trigger": "Новый проект",
+      "title": "Новый проект",
+      "description": "Дайте проекту название. Вы сразу получите базовый URL для его mock API.",
+      "nameLabel": "Название проекта",
+      "namePlaceholder": "Мой проект",
+      "submit": "Создать проект"
+    },
+    "empty": {
+      "title": "У вас пока нет проектов."
+    },
+    "toasts": {
+      "created": "Проект создан",
+      "error": "Что-то пошло не так. Попробуйте снова."
+    }
   }
 }

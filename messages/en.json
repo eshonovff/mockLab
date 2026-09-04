@@ -58,5 +58,34 @@
     "dialog": {
       "typeToConfirm": "Type {word} to confirm"
     }
+  },
+  "dashboard": {
+    "title": "Projects",
+    "hero": {
+      "label": "Your endpoint is live",
+      "copyUrl": "Copy base URL",
+      "copied": "Copied"
+    },
+    "card": {
+      "resourceCount": "{count, plural, one {# resource} other {# resources}}",
+      "createdOn": "Created {date}",
+      "copyUrl": "Copy base URL",
+      "copied": "Copied"
+    },
+    "newProject": {
+      "trigger": "New project",
+      "title": "New project",
+      "description": "Give your project a name. You'll get a base URL for its mock API right away.",
+      "nameLabel": "Project name",
+      "namePlaceholder": "My project",
+      "submit": "Create project"
+    },
+    "empty": {
+      "title": "You don't have any projects yet."
+    },
+    "toasts": {
+      "created": "Project created",
+      "error": "Something went wrong. Try again."
+    }
   }
 }

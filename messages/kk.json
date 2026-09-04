@@ -59,5 +59,34 @@
     "dialog": {
       "typeToConfirm": "Растау үшін {word} деп теріңіз"
     }
+  },
+  "dashboard": {
+    "title": "Жобалар",
+    "hero": {
+      "label": "Сіздің endpoint белсенді",
+      "copyUrl": "Негізгі URL мекенжайын көшіру",
+      "copied": "Көшірілді"
+    },
+    "card": {
+      "resourceCount": "{count, plural, other {# ресурс}}",
+      "createdOn": "Құрылды {date}",
+      "copyUrl": "Негізгі URL мекенжайын көшіру",
+      "copied": "Көшірілді"
+    },
+    "newProject": {
+      "trigger": "Жаңа жоба",
+      "title": "Жаңа жоба",
+      "description": "Жобаңызға атау беріңіз. Mock API үшін негізгі URL мекенжайын бірден аласыз.",
+      "nameLabel": "Жоба атауы",
+      "namePlaceholder": "Менің жобам",
+      "submit": "Жоба құру"
+    },
+    "empty": {
+      "title": "Сізде әзірге жобалар жоқ."
+    },
+    "toasts": {
+      "created": "Жоба құрылды",
+      "error": "Бірдеңе дұрыс болмады. Қайта көріңіз."
+    }
   }
 }

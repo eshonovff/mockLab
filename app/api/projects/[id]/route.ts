@@ -3,12 +3,26 @@ import { z } from "zod";
 
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { ProjectDto } from "@/lib/dto";
 import { jsonError } from "@/lib/http";
 import { updateProjectSchema } from "@/lib/validators";
 
 const projectSelect = { id: true, name: true, key: true, createdAt: true } as const;
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+function toProjectDto(
+  project: { id: string; name: string; key: string; createdAt: Date },
+  resourceCount: number,
+): ProjectDto {
+  return {
+    id: project.id,
+    name: project.name,
+    key: project.key,
+    createdAt: project.createdAt.toISOString(),
+    resourceCount,
+  };
+}
 
 // A project that exists but belongs to someone else responds identically to one that doesn't
 // exist at all (404, not 403) — never confirms another user's project id is valid.
@@ -23,12 +37,12 @@ export async function GET(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   const project = await db.project.findFirst({
     where: { id, userId: session.id },
-    select: projectSelect,
+    select: { ...projectSelect, _count: { select: { resources: true } } },
   });
 
   if (!project) return jsonError(404, "Project not found");
 
-  return NextResponse.json(project);
+  return NextResponse.json(toProjectDto(project, project._count.resources));
 }
 
 export async function PATCH(request: Request, { params }: RouteContext) {
@@ -50,10 +64,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   const project = await db.project.update({
     where: { id },
     data: { name: parsed.data.name },
-    select: projectSelect,
+    select: { ...projectSelect, _count: { select: { resources: true } } },
   });
 
-  return NextResponse.json(project);
+  return NextResponse.json(toProjectDto(project, project._count.resources));
 }
 
 export async function DELETE(_request: Request, { params }: RouteContext) {

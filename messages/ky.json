@@ -59,5 +59,34 @@
     "dialog": {
       "typeToConfirm": "Ырастоо үчүн {word} деп жазыңыз"
     }
+  },
+  "dashboard": {
+    "title": "Долбоорлор",
+    "hero": {
+      "label": "Сиздин endpoint иштеп жатат",
+      "copyUrl": "Негизги URL дарегин көчүрүү",
+      "copied": "Көчүрүлдү"
+    },
+    "card": {
+      "resourceCount": "{count, plural, other {# ресурс}}",
+      "createdOn": "Түзүлгөн {date}",
+      "copyUrl": "Негизги URL дарегин көчүрүү",
+      "copied": "Көчүрүлдү"
+    },
+    "newProject": {
+      "trigger": "Жаңы долбоор",
+      "title": "Жаңы долбоор",
+      "description": "Долбооруңузга ат бериңиз. Mock API үчүн негизги URL дарегин дароо аласыз.",
+      "nameLabel": "Долбоордун аты",
+      "namePlaceholder": "Менин долбоорум",
+      "submit": "Долбоор түзүү"
+    },
+    "empty": {
+      "title": "Сизде азырынча долбоорлор жок."
+    },
+    "toasts": {
+      "created": "Долбоор түзүлдү",
+      "error": "Бир нерсе туура эмес кетти. Кайра аракет кылыңыз."
+    }
   }
 }

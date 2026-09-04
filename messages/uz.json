@@ -59,5 +59,34 @@
     "dialog": {
       "typeToConfirm": "Tasdiqlash uchun {word} so‘zini kiriting"
     }
+  },
+  "dashboard": {
+    "title": "Loyihalar",
+    "hero": {
+      "label": "Endpointingiz faol",
+      "copyUrl": "Asosiy URL manzilini nusxalash",
+      "copied": "Nusxalandi"
+    },
+    "card": {
+      "resourceCount": "{count, plural, other {# resurs}}",
+      "createdOn": "Yaratilgan {date}",
+      "copyUrl": "Asosiy URL manzilini nusxalash",
+      "copied": "Nusxalandi"
+    },
+    "newProject": {
+      "trigger": "Yangi loyiha",
+      "title": "Yangi loyiha",
+      "description": "Loyihangizga nom bering. Mock API uchun asosiy URL manzilini darhol olasiz.",
+      "nameLabel": "Loyiha nomi",
+      "namePlaceholder": "Mening loyiham",
+      "submit": "Loyiha yaratish"
+    },
+    "empty": {
+      "title": "Sizda hali loyihalar yo‘q."
+    },
+    "toasts": {
+      "created": "Loyiha yaratildi",
+      "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+    }
   }
 }

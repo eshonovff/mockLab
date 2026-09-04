@@ -58,5 +58,34 @@
     "dialog": {
       "typeToConfirm": "Барои тасдиқ {word}-ро нависед"
     }
+  },
+  "dashboard": {
+    "title": "Лоиҳаҳо",
+    "hero": {
+      "label": "Endpoint-и шумо фаъол аст",
+      "copyUrl": "Нусхабардории URL-и асосӣ",
+      "copied": "Нусхабардорӣ шуд"
+    },
+    "card": {
+      "resourceCount": "{count, plural, other {# захира}}",
+      "createdOn": "Сохта шуд {date}",
+      "copyUrl": "Нусхабардории URL-и асосӣ",
+      "copied": "Нусхабардорӣ шуд"
+    },
+    "newProject": {
+      "trigger": "Лоиҳаи нав",
+      "title": "Лоиҳаи нав",
+      "description": "Ба лоиҳаатон ном диҳед. Шумо дарҳол URL-и асосии mock API-ро мегиред.",
+      "nameLabel": "Номи лоиҳа",
+      "namePlaceholder": "Лоиҳаи ман",
+      "submit": "Сохтани лоиҳа"
+    },
+    "empty": {
+      "title": "Шумо ҳанӯз ягон лоиҳа надоред."
+    },
+    "toasts": {
+      "created": "Лоиҳа сохта шуд",
+      "error": "Хатогӣ рух дод. Бори дигар кӯшиш кунед."
+    }
   }
 }

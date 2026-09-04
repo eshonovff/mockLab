@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { ProjectDto } from "@/lib/dto";
 import { jsonError } from "@/lib/http";
 import { generateProjectKey } from "@/lib/ids";
 import { createProjectSchema } from "@/lib/validators";
@@ -20,6 +21,19 @@ function isKeyCollision(error: unknown): boolean {
   );
 }
 
+function toProjectDto(
+  project: { id: string; name: string; key: string; createdAt: Date },
+  resourceCount: number,
+): ProjectDto {
+  return {
+    id: project.id,
+    name: project.name,
+    key: project.key,
+    createdAt: project.createdAt.toISOString(),
+    resourceCount,
+  };
+}
+
 export async function GET() {
   const session = await getSession();
   if (!session) return jsonError(401, "Not authenticated");
@@ -27,10 +41,12 @@ export async function GET() {
   const projects = await db.project.findMany({
     where: { userId: session.id },
     orderBy: { createdAt: "desc" },
-    select: projectSelect,
+    select: { ...projectSelect, _count: { select: { resources: true } } },
   });
 
-  return NextResponse.json(projects);
+  return NextResponse.json(
+    projects.map((project) => toProjectDto(project, project._count.resources)),
+  );
 }
 
 export async function POST(request: Request) {
@@ -53,7 +69,9 @@ export async function POST(request: Request) {
         data: { name: parsed.data.name, key: generateProjectKey(), userId: session.id },
         select: projectSelect,
       });
-      return NextResponse.json(project, { status: 201 });
+      // A just-created project has no resources yet — no need to query _count for a value
+      // that's always 0.
+      return NextResponse.json(toProjectDto(project, 0), { status: 201 });
     } catch (error) {
       if (!isKeyCollision(error)) throw error;
     }
