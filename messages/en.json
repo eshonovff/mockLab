@@ -101,6 +101,21 @@
         "namePlaceholder": "products",
         "submit": "Create resource"
       },
+      "import": {
+        "trigger": "Import from JSON",
+        "title": "Import from JSON",
+        "description": "Paste a JSON array or object. We'll infer a starting schema from it — you can edit every field afterward.",
+        "jsonLabel": "JSON",
+        "analyze": "Analyze",
+        "back": "Back",
+        "confirmTitle": "Review the inferred schema",
+        "confirmDescription": "{count, plural, one {# field was} other {# fields were}} inferred from your data.",
+        "errors": {
+          "name": "Enter a valid resource name",
+          "invalidJson": "That's not valid JSON. Check for a missing bracket or comma.",
+          "unsupportedShape": "Expected a JSON array of objects, or a single JSON object."
+        }
+      },
       "toasts": {
         "created": "Resource created",
         "error": "Something went wrong. Try again."

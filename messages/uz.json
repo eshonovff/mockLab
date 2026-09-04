@@ -102,6 +102,21 @@
         "namePlaceholder": "products",
         "submit": "Resurs yaratish"
       },
+      "import": {
+        "trigger": "JSON’dan import qilish",
+        "title": "JSON’dan import qilish",
+        "description": "JSON massivi yoki obyektini joylashtiring. Biz undan boshlang‘ich sxema aniqlaymiz — keyin har bir maydonni tahrirlashingiz mumkin.",
+        "jsonLabel": "JSON",
+        "analyze": "Tahlil qilish",
+        "back": "Orqaga",
+        "confirmTitle": "Aniqlangan sxemani ko‘rib chiqing",
+        "confirmDescription": "Ma’lumotlaringizdan {count, plural, other {# maydon}} aniqlandi.",
+        "errors": {
+          "name": "Resurs uchun to‘g‘ri nom kiriting",
+          "invalidJson": "Bu to‘g‘ri JSON emas. Yetishmayotgan qavs yoki vergulni tekshiring.",
+          "unsupportedShape": "JSON obyektlar massivi yoki bitta JSON obyekt kutilgan edi."
+        }
+      },
       "toasts": {
         "created": "Resurs yaratildi",
         "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."

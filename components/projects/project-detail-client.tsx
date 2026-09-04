@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
 import { fetchResources, resourcesQueryKey } from "@/components/projects/api";
+import { JsonImportDialog } from "@/components/projects/json-import-dialog";
 import { NewResourceDialog } from "@/components/projects/new-resource-dialog";
 import { ResourceCard } from "@/components/projects/resource-card";
 import type { ProjectDto, ResourceDto } from "@/lib/dto";
@@ -28,7 +29,10 @@ export function ProjectDetailClient({
         <h1 className="text-display text-ink">{project.name}</h1>
         <div className="flex flex-col items-center gap-4 rounded-card border border-dashed border-line px-6 py-20 text-center">
           <p className="text-body text-ink-muted">{t("resources.empty.title")}</p>
-          <NewResourceDialog projectId={project.id} />
+          <div className="flex items-center gap-2">
+            <NewResourceDialog projectId={project.id} />
+            <JsonImportDialog projectId={project.id} />
+          </div>
         </div>
       </div>
     );
@@ -36,9 +40,12 @@ export function ProjectDetailClient({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-display text-ink">{project.name}</h1>
-        <NewResourceDialog projectId={project.id} />
+        <div className="flex items-center gap-2">
+          <NewResourceDialog projectId={project.id} />
+          <JsonImportDialog projectId={project.id} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
