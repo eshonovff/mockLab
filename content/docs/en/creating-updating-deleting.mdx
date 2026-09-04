@@ -1,0 +1,96 @@
+---
+title: Creating, updating and deleting
+description: How POST, PUT, PATCH, and DELETE work against a resource, and what each one returns.
+order: 5
+---
+
+{{brand}} isn't a read-only mock — every resource supports a real write path. Writes don't
+change the _generated_ data itself; each one is stored as a small override layered on top,
+which is what makes [resetting a resource](/docs/resetting-data) safe and complete.
+
+## Creating a record
+
+`POST` to the collection endpoint with a JSON object body. The server always assigns the `id` —
+if your body includes one, it's discarded in favor of the real one — and returns the created
+record with a `201` status.
+
+```bash
+curl -X POST https://{{domain}}/m/demo7k2m9x/products \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Desk lamp", "price": "$34.00", "inStock": true}'
+```
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ title: "Desk lamp", price: "$34.00", inStock: true }),
+});
+const created = await response.json(); // { id: "...", title: "Desk lamp", ... }
+```
+
+## Replacing a record with PUT
+
+`PUT` to `/m/{project-key}/{resource-name}/{id}` replaces the entire record with your body — any
+field you don't send is gone from the result, exactly like a real REST API's `PUT` semantics.
+Returns `200` with the full replaced record.
+
+```js
+await fetch(`https://{{domain}}/m/demo7k2m9x/products/${id}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ title: "Desk lamp", price: "$29.00", inStock: false }),
+});
+```
+
+## Updating a record with PATCH
+
+`PATCH` merges your body onto the record's _current_ value — generated or already overridden —
+so only the keys you send change. This is almost always what you want for an "edit one field"
+form.
+
+```jsx
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+function useUpdatePrice(productId) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (price) =>
+      fetch(`https://{{domain}}/m/demo7k2m9x/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price }),
+      }).then((res) => res.json()),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
+  });
+}
+```
+
+## Deleting a record
+
+`DELETE` the same single-record URL. Returns `204` with no body — the record no longer appears
+in list results or in a direct `GET` by id.
+
+```js
+await fetch(`https://{{domain}}/m/demo7k2m9x/products/${id}`, { method: "DELETE" });
+```
+
+## What isn't validated
+
+None of these write endpoints validate your body against the resource's field types — a mock
+API's entire point is accepting whatever shape a client under active development happens to
+send, without you having to keep a schema perfectly in sync first. The only requirement is that
+the body is a JSON object for `POST`/`PUT`/`PATCH`. Send a field that doesn't exist in the
+schema and it's stored and returned exactly as sent; send nothing for a field the schema defines
+and, for `PUT`, it's simply absent from the result.
+
+## One caveat above 10,000 records
+
+Single-record `GET`/`PUT`/`PATCH`/`DELETE` only work by id for records that already have an
+override — either created via `POST`, or a plain generated record you've already written to at
+least once. On a resource with more than 10,000 records, an id belonging to a plain,
+never-touched generated record returns `404` on these routes, because finding which index an
+arbitrary id belongs to would mean generating records until a match turns up — exactly the scan
+the 10,000 cutoff exists to avoid. See [How generation works](/docs/how-generation-works) for
+the full explanation.

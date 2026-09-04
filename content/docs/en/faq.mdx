@@ -1,0 +1,83 @@
+---
+title: FAQ
+description: Answers to the questions that come up most once you're actually building against a resource.
+order: 9
+---
+
+## Do I need an API key or authentication to call my endpoint?
+
+No. The project `key` in your endpoint URL (`/m/{project-key}/{resource-name}`) is what scopes
+requests to your project — there's no separate API key or auth header to send. This keeps a
+resource callable straight from browser JavaScript with no secret to leak, which matters since
+CORS is enabled by default specifically so browser code can call it directly.
+
+## Why doesn't my `price_gt=50` filter work?
+
+Only four filter suffixes exist: `_gte`, `_lte`, `_ne`, and `_like` — there's no `_gt` or `_lt`
+(strictly greater/less than, no "or equal"). `price_gt=50` isn't rejected as invalid, though;
+since it doesn't match any recognized suffix, it's treated as a plain equality filter on a field
+literally named `price_gt`, which almost certainly doesn't exist in your schema — so it silently
+matches nothing. Use `price_gte=51` (or `_lte=49`) to express strict inequality on an integer
+field, or just accept the "or equal" boundary for a `price` field, since exact equality on a
+generated decimal is rarely what you actually want anyway.
+
+## Can I get the same record back on every request?
+
+Yes, and you already do — that's the determinism guarantee from
+[How generation works](/docs/how-generation-works). The same resource, unmodified, returns
+identical data for the same query on every request, from any client, forever, unless you write
+to it or reset it. This is what makes it safe to write tests or a demo script against specific
+expected values.
+
+## Why did my sort/filter request just stop working?
+
+Check your resource's record `count`. Sorting, searching, and filtering are only available at
+10,000 records or fewer; above that they're silently disabled rather than erroring, and the
+response carries `X-MockLab-Notice: sort-filter-disabled-above-10000` when this happens. See
+[Limits and fair use](/docs/limits-and-fair-use) for the complete picture.
+
+## Does deleting a record free up its `id` for reuse?
+
+No — a deleted record's `id` never comes back. Deletion is stored as an override marking that
+id gone, not as an undo of the generation itself, so the same id reliably continues to mean
+"deleted" until the resource is reset.
+
+## Can two different UI languages generate different fake data for the same resource?
+
+Yes, and these are intentionally independent. A resource has its own fake-data `locale` —
+`en`, `ru`, and so on — set once when you configure the resource, which controls what language
+names, cities, and addresses generate in. It has nothing to do with which language your
+dashboard is displayed in; you can browse the dashboard in one language while a resource
+generates fake data in another.
+
+## How do I get one record instead of a whole page?
+
+`GET` the single-record URL directly, `/m/{project-key}/{resource-name}/{id}`, using an id you
+already have from a list response:
+
+```js
+const list = await fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json());
+const first = await fetch(`https://{{domain}}/m/demo7k2m9x/products/${list[0].id}`).then((res) =>
+  res.json(),
+);
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useProduct(id) {
+  return useQuery({
+    queryKey: ["products", id],
+    queryFn: () =>
+      fetch(`https://{{domain}}/m/demo7k2m9x/products/${id}`).then((res) => res.json()),
+    enabled: Boolean(id),
+  });
+}
+```
+
+## Something here doesn't match what I'm seeing — now what?
+
+Every response header mentioned throughout these docs (`X-Total-Count`, `X-RateLimit-Remaining`,
+`X-MockLab-Notice`, `Retry-After`) is a real, inspectable signal, not internal-only behavior — a
+mismatch is almost always explainable from what a request's actual headers say. Start there
+before assuming something's broken.

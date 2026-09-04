@@ -1,0 +1,76 @@
+---
+title: Limits and fair use
+description: Rate limits, response size, CORS, and the 10,000-record sort/filter boundary, in one place.
+order: 8
+---
+
+A summary of every hard limit {{brand}} enforces, so nothing about how a resource behaves comes
+as a surprise mid-project.
+
+## Rate limiting
+
+Each project is limited to 60 requests per minute against its `/m/...` endpoints, counted per
+project key — not per resource, so a project with three resources shares one 60-request budget
+across all of them. Every response carries an `X-RateLimit-Remaining` header showing how many
+requests are left in the current window, whether the request succeeded or not, so a well-behaved
+client can back off before it gets blocked rather than only finding out after.
+
+Exceed the limit and you get a `429 Too Many Requests` response with a `Retry-After` header
+telling you how many seconds to wait before the window resets.
+
+```js
+async function fetchWithBackoff(url) {
+  const response = await fetch(url);
+  if (response.status === 429) {
+    const retryAfterSeconds = Number(response.headers.get("Retry-After"));
+    await new Promise((resolve) => setTimeout(resolve, retryAfterSeconds * 1000));
+    return fetchWithBackoff(url);
+  }
+  return response;
+}
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useProducts() {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+    // TanStack Query already retries failed requests with backoff by default —
+    // a 429 here is retried automatically without any extra code.
+    retry: 3,
+  });
+}
+```
+
+## Page size
+
+`limit` defaults to 10 and is capped at 100 — a request for more doesn't error, it's just
+silently reduced to 100. There's no limit on total record `count` for a resource itself; the cap
+only applies to how many records come back in a single page. See
+[Query parameters](/docs/query-parameters) for the full set of pagination options.
+
+## The 10,000-record sort/filter boundary
+
+Sorting, filtering, and search are only available on resources with 10,000 records or fewer.
+Above that, a request still succeeds and still paginates correctly, but those parameters are
+silently ignored — flagged by an `X-MockLab-Notice: sort-filter-disabled-above-10000` response
+header rather than an error, since the request itself isn't invalid. The full reasoning is in
+[How generation works](/docs/how-generation-works).
+
+## CORS
+
+Every `/m/...` response includes `Access-Control-Allow-Origin: *` and a real `OPTIONS`
+preflight handler, so calling your endpoint directly from browser JavaScript on any origin works
+without a proxy. The handful of custom response headers described throughout these docs
+(`X-Total-Count`, `X-RateLimit-Remaining`, and the rest) are explicitly exposed via
+`Access-Control-Expose-Headers`, so `response.headers.get(...)` for any of them works from
+browser code, not only from a server-side or command-line client.
+
+## What's genuinely unlimited
+
+The one thing without a hard cap is `count` — a resource's total record size. That's the whole
+point: because records are generated on demand rather than stored, a resource with a million
+records costs the server the same as one with ten. The limits above exist to keep the _service_
+fair to every project sharing it, not to cap what any individual resource can represent.

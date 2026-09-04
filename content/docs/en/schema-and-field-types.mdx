@@ -1,0 +1,86 @@
+---
+title: Schema and field types
+description: The full reference table of every field type a resource can use, with its options and example output.
+order: 3
+---
+
+A resource's schema is an ordered list of fields. Each field has a `name`, a `type`, and,
+depending on the type, a small set of `options`. Field order matters for one specific reason:
+a `template` field can only reference a field that appears earlier in the same list — see the
+`template` row below.
+
+Field names must start with a lowercase letter and contain only letters, numbers, and
+underscores. A resource can have at most 30 fields. Every generated record also carries an `id`
+automatically — you never define it yourself, and a field you name `id` is silently ignored in
+favor of the real one.
+
+## Reference table
+
+| Type        | Options                                             | Example output                              |
+| ----------- | --------------------------------------------------- | ------------------------------------------- |
+| `index`     | —                                                   | `0`, `1`, `2`, … (the record's position)    |
+| `uuid`      | —                                                   | `"a1b2c3d4-5e6f-7890-abcd-ef1234567890"`    |
+| `firstName` | —                                                   | `"Amelia"`                                  |
+| `lastName`  | —                                                   | `"Nguyen"`                                  |
+| `fullName`  | —                                                   | `"Amelia Nguyen"`                           |
+| `email`     | —                                                   | `"amelia.nguyen42@example.com"`             |
+| `phone`     | —                                                   | `"+1 555 019 2231"`                         |
+| `avatar`    | —                                                   | an avatar image URL                         |
+| `image`     | `width`, `height` (both optional)                   | an image URL at the given size              |
+| `city`      | —                                                   | `"Tashkent"`                                |
+| `country`   | —                                                   | `"Uzbekistan"`                              |
+| `street`    | —                                                   | `"482 Birchwood Ave"`                       |
+| `word`      | —                                                   | `"vivid"`                                   |
+| `sentence`  | `min`, `max` word count (optional)                  | `"The quiet fox waited by the door."`       |
+| `paragraph` | `min`, `max` sentence count (optional)              | a short paragraph of lorem-style text       |
+| `number`    | `min`, `max` (default `0`–`1000`)                   | `742`                                       |
+| `price`     | `min`, `max`, `symbol` (default no symbol)          | `"48.19"`, or `"$48.19"` with `symbol: "$"` |
+| `boolean`   | `probability` of `true`, `0`–`1`                    | `true`                                      |
+| `date`      | `from`, `to` ISO strings (default 2015–2025)        | `"2021-06-14T09:32:00.000Z"`                |
+| `enum`      | `values` — a non-empty array of strings             | one value picked from `values`              |
+| `static`    | `value` — any fixed JSON value                      | always exactly `value`                      |
+| `template`  | `template` — a string with `{{field}}` placeholders | a string built from earlier fields          |
+
+## The `template` type
+
+`template` is the one type that reads other fields instead of generating its own value. Its
+`template` option is a plain string; anywhere it contains `{{fieldName}}`, that placeholder is
+replaced with the value the field named `fieldName` already generated for this same record. This
+only works for fields defined _earlier_ in the schema — a template can't reference a field that
+hasn't run yet. A common use: given a `firstName` field and a `lastName` field earlier in the
+list, a later `email` field could instead be a `template` field with
+`"{{firstName}}.{{lastName}}@example.com"` to keep an email consistent with a name, rather than
+generating an unrelated one.
+
+## Determinism, briefly
+
+Every field type pulls from the same seeded pseudo-random sequence as every other field on the
+same record, so the exact same schema, seed, and record index always produce the exact same
+record, field for field. [How generation works](/docs/how-generation-works) covers the mechanism
+in full; what matters here is that changing a field's _options_ changes that field's future
+output, but reordering or adding fields elsewhere in the schema does not reshuffle the ids
+already handed out for existing records — ids are generated independently of the rest of the
+schema.
+
+## Fetching a resource's data
+
+None of this changes how you read the data — every resource, regardless of its fields, is read
+the same way:
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function ProductList() {
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  return <pre>{JSON.stringify(products, null, 2)}</pre>;
+}
+```

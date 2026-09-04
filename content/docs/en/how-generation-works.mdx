@@ -1,0 +1,82 @@
+---
+title: How generation works
+description: The seed, determinism, and the honest 10,000-record limit on sorting and filtering.
+order: 7
+---
+
+This page explains the mechanism behind {{brand}}'s central claim — no record limit — openly
+enough that you can reason about its actual trade-offs, not just trust the marketing.
+
+## The seed
+
+Every resource has a `seed`: a short random string assigned when the resource is created. The
+seed, together with a record's index (its position in the list — `0`, `1`, `2`, and so on), is
+the only input generation ever needs. Given the same seed and the same index, the same field
+types, in the same order, always produce the same values — on any machine, in any process,
+without any record ever being written to a database first.
+
+## The mechanism
+
+For record index `i`, the server computes a numeric hash of `seed + ":" + i` and uses it to seed
+a small, fast pseudo-random number generator. Every field in the schema then draws from that one
+generator, in the order the fields appear in the schema — which is exactly why reordering fields
+in the schema builder changes what each field produces (each field's draw from the sequence
+shifts), while adding an _option_ to an existing field only changes that field's own output. A
+record's `id` is deliberately generated from a _separate_ sequence, seeded from
+`seed + ":id:" + i` — independent of the data fields — specifically so that editing your
+schema's fields never changes the ids already handed out for existing records.
+
+This is also why generating a million records costs almost nothing: there's no lookup, no
+database row, no stored state per record at all. The server does a small amount of arithmetic
+per record, per request, and only for the records in the page you actually asked for.
+
+## What actually gets stored
+
+Nothing about the generated data is ever stored. The only thing persisted is your overrides —
+the result of every `POST`, `PUT`, `PATCH`, and `DELETE` you've made (see
+[Creating, updating and deleting](/docs/creating-updating-deleting)). A read request generates
+the requested window of records, merges any overrides on top (replacing edited records, dropping
+deleted ones, appending newly created ones), then filters, searches, sorts, and paginates the
+result.
+
+## The honest limit: 10,000 records
+
+For resources with 10,000 records or fewer, the server materializes the whole merged dataset
+into memory once per data version and serves filtering, searching, and sorting from that. Above
+10,000, filtering, searching, and sorting are disabled entirely — only pagination works. This
+isn't a marketing footnote: a response affected by it carries a real, checkable header,
+`X-MockLab-Notice: sort-filter-disabled-above-10000`, so your code (or you, reading the network
+tab) can tell it happened rather than silently getting unsorted or unfiltered results.
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/logs?sort=createdAt");
+if (response.headers.get("X-MockLab-Notice") === "sort-filter-disabled-above-10000") {
+  console.warn("This resource is too large for sort/filter — showing unsorted pages instead.");
+}
+const records = await response.json();
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useSortedRecords(sort) {
+  return useQuery({
+    queryKey: ["logs", sort],
+    queryFn: async () => {
+      const res = await fetch(`https://{{domain}}/m/demo7k2m9x/logs?sort=${sort}`);
+      return {
+        records: await res.json(),
+        sortDisabled: res.headers.get("X-MockLab-Notice") === "sort-filter-disabled-above-10000",
+      };
+    },
+  });
+}
+```
+
+The same limit affects single-record routes above 10,000 records, in a related way: `GET`,
+`PUT`, `PATCH`, and `DELETE` by id only work for records that already carry an override, because
+turning an arbitrary id back into its generation index would mean generating records until one
+matches — exactly the unbounded scan the limit exists to prevent. Below 10,000 records, none of
+this applies; every record is addressable by id immediately, sorting and filtering are always
+available, and the notice header never appears. A future version raises this limit with a
+proper index; for now it's documented rather than hidden.

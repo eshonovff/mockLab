@@ -1,0 +1,84 @@
+---
+title: Resetting data
+description: How to clear every write on a resource and return to the pure generated baseline.
+order: 6
+---
+
+Every write against a resource — every `POST`, `PUT`, `PATCH`, and `DELETE` — is stored as a
+small override layered on top of the generated data, never as a change to the generation itself.
+That means undoing all of them is a single, complete, instant operation: reset the resource, and
+every override is deleted. The next read regenerates the same data you'd get from a brand-new
+resource with the same schema, seed, and count — byte for byte, because nothing about the
+generation logic ever moved.
+
+## Why this is safe
+
+Contrast this with a fake-API tool backed by a real database of inserted rows: "reset" there
+usually means re-running a seed script, and there's no guarantee it reproduces exactly what was
+there before if the script or its random source has changed even slightly. {{brand}}'s reset
+has no such risk, because the generated baseline was never touched to begin with — your writes
+lived entirely in a separate overrides layer. Deleting that layer _is_ the reset, with nothing
+left to regenerate incorrectly.
+
+## Where to reset from
+
+Resetting is a project-owner action, not something a public API consumer calls — it lives behind
+your dashboard session, not the `/m/...` endpoint your app calls. From your resource's page in
+the dashboard, use the reset action to clear all overrides for that resource. There's no
+confirmation step to script around and no partial reset: it's all-or-nothing, by design, since a
+selective reset would need to distinguish "this is a deliberate edit I want to keep" from
+"this was test data," a distinction the API has no way to know.
+
+## What actually happens
+
+Under the hood, resetting deletes every override row belonging to the resource and bumps its
+internal data version — the same version number that keys the in-memory cache your reads are
+served from. That single increment is what invalidates every cached page for that resource
+across every server process; the very next `GET`, from anywhere, regenerates and re-caches from
+a clean slate.
+
+## When you'd use this
+
+Resetting is most useful mid-development: you've been poking at a resource through your app's
+UI — creating test records, deleting a few, patching prices to check an edge case — and you want
+a clean baseline again before demoing, testing, or handing the endpoint to someone else. Because
+generation is deterministic, everyone hitting the reset resource afterward sees the exact same
+data, which makes it easier to write tests or documentation against fixed expected values.
+
+## Reading data after a reset
+
+Reading a resource after a reset uses the exact same endpoint as always — nothing about the URL
+or response shape changes:
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+// Identical to a fresh resource with the same schema, seed and count.
+```
+
+```jsx
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+function ProductList() {
+  const queryClient = useQueryClient();
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  // After resetting from the dashboard, invalidate the cached query so the
+  // next render reflects the clean baseline instead of stale overridden data.
+  const refetchAfterReset = () => queryClient.invalidateQueries({ queryKey: ["products"] });
+
+  return (
+    <>
+      <button onClick={refetchAfterReset}>Refresh</button>
+      <ul>
+        {products?.map((p) => (
+          <li key={p.id}>{p.title}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```

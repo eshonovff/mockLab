@@ -1,0 +1,91 @@
+---
+title: Quick start
+description: Five minutes from signing up to a live, working REST endpoint.
+order: 2
+---
+
+This walks through the shortest path from nothing to a real endpoint you can call from your own
+app. It takes about five minutes.
+
+## 1. Create an account
+
+Sign up at `/register` with an email and password. You'll land on your dashboard — empty, since
+you haven't created a project yet.
+
+## 2. Create a project
+
+A project is just a namespace: it holds one or more resources and owns the `key` that appears in
+every one of its endpoint URLs. Click **New project**, give it a name, and {{brand}} generates a
+random project key for you — something like `demo7k2m9x`. You never choose this key yourself; it
+exists so your endpoint URL isn't guessable from your project name.
+
+## 3. Create a resource
+
+Inside your project, create a resource and name it — say, `products`. A resource is one schema:
+a list of fields, each with a type. Add three fields to try it out:
+
+| Field name | Type    | Notes                          |
+| ---------- | ------- | ------------------------------ |
+| `title`    | word    | a single generated word        |
+| `price`    | price   | set the `symbol` option to `$` |
+| `inStock`  | boolean | true/false                     |
+
+Every field you add updates a live preview table on the same screen, so you can see real
+generated rows before you write a line of client code. Set **Record count** to whatever you
+need — 50 for a quick test, 100,000 to see the "no record limit" claim actually hold. Whatever
+number you pick, the response time for a single page barely changes, because {{brand}} never
+generates more than one page's worth of records for a request.
+
+## 4. Call your endpoint
+
+Your resource's endpoint is live the instant you create it — there's no separate "publish" or
+"deploy" step. The full URL follows one pattern:
+
+```
+https://{{domain}}/m/{project-key}/{resource-name}
+```
+
+So for the project and resource above:
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+console.log(products[0]);
+// { id: "a1b2c3d4-...", title: "vivid", price: "$48.19", inStock: true }
+```
+
+In a React component with TanStack Query, the same call looks like this:
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function ProductList() {
+  const {
+    data: products,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  if (isPending) return <p>Loading…</p>;
+  if (isError) return <p>Something went wrong.</p>;
+
+  return (
+    <ul>
+      {products.map((product) => (
+        <li key={product.id}>
+          {product.title} — {product.price}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+That's it — a real REST resource with pagination, filtering, sorting, and full CRUD, without a
+server of your own. From here: [Schema and field types](/docs/schema-and-field-types) covers
+every field type available for your resource, and
+[Query parameters](/docs/query-parameters) covers everything you can do to the list endpoint
+through the URL.
