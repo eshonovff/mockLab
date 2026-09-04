@@ -137,3 +137,28 @@ export const resourceNameSchema = z
 // deferred to the resource-creation route (task 4.4), which checks it the same way
 // app/api/auth/register/route.ts already checks email uniqueness: validate shape here, then a
 // separate `db.resource.findFirst(...)` + 409 in the route handler.
+
+// ---------------------------------------------------------------------------------------------
+// Resource CRUD input (task 4.4). `schema` defaults to an empty field list on create — CLAUDE.md
+// §4.6's schema builder is a "create the resource, then add fields interactively" flow, not a
+// single-shot creation form.
+
+export const createResourceSchema = z.object({
+  name: resourceNameSchema,
+  schema: resourceSchemaSchema.optional(),
+  count: z.number().int().positive().optional(),
+});
+
+export type CreateResourceInput = z.infer<typeof createResourceSchema>;
+
+// `seed` is accepted here (unlike Project.key, which is never client-settable) — CLAUDE.md
+// §4.6 describes a "seed with a regenerate button" in the schema builder UI, meaning the
+// client is expected to be able to set it, not just receive a server-assigned one at creation.
+export const updateResourceSchema = z.object({
+  name: resourceNameSchema.optional(),
+  schema: resourceSchemaSchema.optional(),
+  seed: z.string().min(1).max(60).optional(),
+  count: z.number().int().positive().optional(),
+});
+
+export type UpdateResourceInput = z.infer<typeof updateResourceSchema>;

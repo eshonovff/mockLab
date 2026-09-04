@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { ProjectDto } from "@/lib/dto";
 import { jsonError } from "@/lib/http";
+import { requireOwnedProject } from "@/lib/ownership";
 import { updateProjectSchema } from "@/lib/validators";
 
 const projectSelect = { id: true, name: true, key: true, createdAt: true } as const;
@@ -22,12 +23,6 @@ function toProjectDto(
     createdAt: project.createdAt.toISOString(),
     resourceCount,
   };
-}
-
-// A project that exists but belongs to someone else responds identically to one that doesn't
-// exist at all (404, not 403) — never confirms another user's project id is valid.
-async function requireOwnedProject(id: string, userId: string) {
-  return db.project.findFirst({ where: { id, userId }, select: { id: true } });
 }
 
 export async function GET(_request: Request, { params }: RouteContext) {
