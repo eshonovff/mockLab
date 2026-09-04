@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { FieldType } from "@/lib/generator/field-types";
-import { resourceNameSchema, resourceSchemaSchema } from "@/lib/validators";
+import { resourceNameSchema, resourceSchemaSchema, schemaPreviewSchema } from "@/lib/validators";
 
 // Minimal valid options per type — mirrors lib/generator/fields.test.ts's CASES table, which
 // already establishes what each type actually needs to be usable.
@@ -137,5 +137,35 @@ describe("resourceNameSchema", () => {
 
   it.each(["auth", "admin", "api"])("rejects the reserved word %s", (name) => {
     expect(resourceNameSchema.safeParse(name).success).toBe(false);
+  });
+});
+
+describe("schemaPreviewSchema", () => {
+  const valid = {
+    schema: { fields: [{ name: "title", type: "word", options: {} }] },
+    seed: "preview-seed",
+    locale: "en",
+  };
+
+  it("accepts a schema, seed, and locale together", () => {
+    expect(schemaPreviewSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("requires seed", () => {
+    const { seed: _seed, ...rest } = valid;
+    expect(schemaPreviewSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it("requires locale", () => {
+    const { locale: _locale, ...rest } = valid;
+    expect(schemaPreviewSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it("still enforces resourceSchemaSchema's own rules on the nested schema", () => {
+    const invalid = {
+      ...valid,
+      schema: { fields: [{ name: "Bad Name", type: "word", options: {} }] },
+    };
+    expect(schemaPreviewSchema.safeParse(invalid).success).toBe(false);
   });
 });

@@ -162,3 +162,16 @@ export const updateResourceSchema = z.object({
 });
 
 export type UpdateResourceInput = z.infer<typeof updateResourceSchema>;
+
+// ---------------------------------------------------------------------------------------------
+// Schema preview (task 4.5). `seed` and `locale` are top-level, separate from `schema`'s own
+// optional nested `locale` — the builder UI (CLAUDE.md §4.6) has independent controls for
+// count/locale/seed alongside the field list, so a preview call reflects whatever the user has
+// currently set in those controls, not necessarily what's nested inside the schema draft.
+export const schemaPreviewSchema = z.object({
+  schema: resourceSchemaSchema,
+  seed: z.string().min(1).max(60),
+  locale: z.string().min(1),
+});
+
+export type SchemaPreviewInput = z.infer<typeof schemaPreviewSchema>;
