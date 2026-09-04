@@ -15,6 +15,7 @@ import {
   type DraftField,
   type PersistedField,
 } from "@/components/builder/field-defaults";
+import { EndpointConsole } from "@/components/builder/endpoint-console";
 import { FieldRow } from "@/components/builder/field-row";
 import { PreviewTable } from "@/components/builder/preview-table";
 import { ResourceSettings } from "@/components/builder/resource-settings";
@@ -71,8 +72,17 @@ function computeNameErrors(fields: DraftField[]): Record<string, "pattern" | "du
   return errors;
 }
 
-export function SchemaBuilder({ initialResource }: { initialResource: ResourceDto }) {
+export function SchemaBuilder({
+  initialResource,
+  projectKey,
+  siteUrl,
+}: {
+  initialResource: ResourceDto;
+  projectKey: string;
+  siteUrl: string;
+}) {
   const t = useTranslations("builder");
+  const endpointBaseUrl = `${siteUrl}/m/${projectKey}/${initialResource.name}`;
 
   const [draft, setDraft] = useState<Draft>(() => ({
     fields: hydrateDraftFields(initialResource.schema.fields),
@@ -322,6 +332,8 @@ export function SchemaBuilder({ initialResource }: { initialResource: ResourceDt
             onLocaleChange={handleLocaleChange}
             onRegenerateSeed={handleRegenerateSeed}
           />
+
+          <EndpointConsole baseUrl={endpointBaseUrl} />
         </div>
       </div>
     </div>

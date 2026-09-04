@@ -193,6 +193,23 @@
       "seed": "Seed",
       "regenerateSeed": "Regenerate seed"
     },
+    "endpoints": {
+      "title": "Endpoints",
+      "description": "Try each one straight from the browser — this is the same API your app will call.",
+      "copyUrl": "Copy endpoint URL",
+      "copied": "Endpoint URL copied",
+      "copyError": "Couldn't copy the URL",
+      "send": "Send",
+      "noRecords": "This resource has no records to target yet.",
+      "networkError": "Couldn't reach the endpoint. Check your connection and try again.",
+      "noContent": "No content",
+      "list": "List records",
+      "create": "Create a record",
+      "read": "Get a record",
+      "replace": "Replace a record",
+      "update": "Update a record",
+      "delete": "Delete a record"
+    },
     "toasts": {
       "saveError": "Couldn't save your changes. Try again.",
       "reorderError": "Couldn't save the new order — it's been reverted."

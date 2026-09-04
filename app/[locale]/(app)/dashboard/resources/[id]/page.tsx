@@ -5,6 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { ResourceDto } from "@/lib/dto";
+import { env } from "@/lib/env";
 import type { Locale } from "@/lib/locales";
 
 // The (app) layout (task 2.4) already redirects unauthenticated requests before this page ever
@@ -35,6 +36,7 @@ export default async function ResourceBuilderPage({
       seed: true,
       count: true,
       dataVersion: true,
+      project: { select: { key: true } },
     },
   });
 
@@ -50,5 +52,11 @@ export default async function ResourceBuilderPage({
     dataVersion: resource.dataVersion,
   };
 
-  return <SchemaBuilder initialResource={initialResource} />;
+  return (
+    <SchemaBuilder
+      initialResource={initialResource}
+      projectKey={resource.project.key}
+      siteUrl={env.NEXT_PUBLIC_SITE_URL}
+    />
+  );
 }

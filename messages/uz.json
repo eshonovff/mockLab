@@ -194,6 +194,23 @@
       "seed": "Seed",
       "regenerateSeed": "Seedni qayta yaratish"
     },
+    "endpoints": {
+      "title": "Endpointlar",
+      "description": "Har birini brauzerdan sinab ko‘ring — bu ilovangiz foydalanadigan xuddi shu API.",
+      "copyUrl": "Endpoint URL manzilini nusxalash",
+      "copied": "Endpoint URL manzili nusxalandi",
+      "copyError": "URL manzilini nusxalab bo‘lmadi",
+      "send": "Yuborish",
+      "noRecords": "Bu resursda hali murojaat qilish uchun yozuvlar yo‘q.",
+      "networkError": "Endpointga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urinib ko‘ring.",
+      "noContent": "Mazmun yo‘q",
+      "list": "Yozuvlar ro‘yxati",
+      "create": "Yozuv yaratish",
+      "read": "Yozuvni olish",
+      "replace": "Yozuvni almashtirish",
+      "update": "Yozuvni yangilash",
+      "delete": "Yozuvni o‘chirish"
+    },
     "toasts": {
       "saveError": "O‘zgarishlar saqlanmadi. Qayta urinib ko‘ring.",
       "reorderError": "Yangi tartib saqlanmadi — bekor qilindi."
