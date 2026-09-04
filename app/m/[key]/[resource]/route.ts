@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getDataset, type DatasetOverride } from "@/lib/generator/dataset";
 import type { ResourceSchema } from "@/lib/generator/record";
 import { jsonError } from "@/lib/http";
-import { CORS_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
+import { CORS_HEADERS, CORS_PREFLIGHT_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
 import { db } from "@/lib/db";
 import { parseQuery } from "@/lib/query";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
@@ -35,14 +35,7 @@ function buildLinkHeader(url: URL, page: number, limit: number, totalCount: numb
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      ...CORS_HEADERS,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+  return new NextResponse(null, { status: 204, headers: CORS_PREFLIGHT_HEADERS });
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {

@@ -9,7 +9,7 @@ import {
 } from "@/lib/generator/dataset";
 import type { ResourceSchema } from "@/lib/generator/record";
 import { jsonError } from "@/lib/http";
-import { CORS_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
+import { CORS_HEADERS, CORS_PREFLIGHT_HEADERS, resolveProjectAndResource } from "@/lib/mock-api";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
 import type { Prisma } from "@prisma/client";
 
@@ -23,14 +23,7 @@ type RouteContext = { params: Promise<{ key: string; resource: string; id: strin
 type WriteTarget = { existing: { id: string } } | { index: number };
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      ...CORS_HEADERS,
-      "Access-Control-Allow-Methods": "GET, PUT, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+  return new NextResponse(null, { status: 204, headers: CORS_PREFLIGHT_HEADERS });
 }
 
 async function fetchOverrides(resourceId: string): Promise<DatasetOverride[]> {

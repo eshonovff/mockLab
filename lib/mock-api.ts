@@ -6,7 +6,32 @@
 
 import { db } from "@/lib/db";
 
-export const CORS_HEADERS: Record<string, string> = { "Access-Control-Allow-Origin": "*" };
+// Wildcard origin alone isn't enough for a browser client to actually use this API. By the Fetch
+// spec, cross-origin JavaScript can only read a fixed "CORS-safelisted" set of response headers
+// (Content-Type, Content-Length, a few others) — every custom header this API sends
+// (X-Total-Count, X-Page, X-Limit, Link, X-MockLab-Notice, Retry-After) is otherwise present on
+// the wire but invisible to `fetch()`'s `Headers` object entirely, silently, with no console
+// warning. Access-Control-Expose-Headers is what lifts that restriction. Caught live: a first
+// pass without this line had every real cross-origin fetch() call succeed, while
+// `response.headers.get("x-total-count")` silently returned `null` — not an error, just quietly
+// unusable, exactly the kind of gap curl (which doesn't enforce header-exposure restrictions at
+// all) can never catch and only a genuine browser-based cross-origin test surfaces.
+export const CORS_HEADERS: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Expose-Headers":
+    "X-Total-Count, X-Page, X-Limit, Link, X-MockLab-Notice, Retry-After",
+};
+
+// Task 5.3: the *same* full method/header set is advertised by both routes' OPTIONS handlers,
+// not just the subset each one actually implements (the collection route has no PUT/PATCH/
+// DELETE; the single-record route has no POST) — a CORS preflight only asks "would this
+// request be allowed," and a client shouldn't need to know which of the two routes it's
+// preflighting against to interpret the answer.
+export const CORS_PREFLIGHT_HEADERS: Record<string, string> = {
+  ...CORS_HEADERS,
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Accept",
+};
 
 export type ResolvedResource = {
   project: { id: string };
