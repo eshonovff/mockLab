@@ -87,6 +87,101 @@
     "toasts": {
       "created": "Loyiha yaratildi",
       "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+    },
+    "resources": {
+      "recordCount": "{count, plural, other {# yozuv}}",
+      "fieldCount": "{count, plural, other {# maydon}}",
+      "empty": {
+        "title": "Bu loyihada hali resurslar yo‘q."
+      },
+      "newResource": {
+        "trigger": "Yangi resurs",
+        "title": "Yangi resurs",
+        "description": "Resursingizga nom bering. Keyin maydonlar qo‘shib, ma’lumotlarini sozlashingiz mumkin.",
+        "nameLabel": "Resurs nomi",
+        "namePlaceholder": "products",
+        "submit": "Resurs yaratish"
+      },
+      "toasts": {
+        "created": "Resurs yaratildi",
+        "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+      }
+    }
+  },
+  "builder": {
+    "backToProject": "Loyihaga qaytish",
+    "fields": {
+      "title": "Maydonlar",
+      "empty": "Hali maydon yo‘q — resursning ma’lumotlarini shakllantirish uchun birini qo‘shing.",
+      "addField": "Maydon qo‘shish"
+    },
+    "field": {
+      "nameLabel": "Maydon nomi",
+      "typeLabel": "Maydon turi",
+      "moveUp": "Maydonni yuqoriga siljitish",
+      "moveDown": "Maydonni pastga siljitish",
+      "remove": "{field}ni o‘chirish",
+      "errors": {
+        "pattern": "Kichik harf bilan boshlanishi kerak — faqat harflar, raqamlar va pastki chiziq",
+        "duplicate": "Bu nomni boshqa maydon allaqachon ishlatmoqda"
+      }
+    },
+    "fieldTypes": {
+      "index": "Indeks",
+      "uuid": "UUID",
+      "firstName": "Ism",
+      "lastName": "Familiya",
+      "fullName": "To‘liq ism",
+      "email": "Email",
+      "phone": "Telefon",
+      "avatar": "Avatar",
+      "image": "Rasm",
+      "city": "Shahar",
+      "country": "Davlat",
+      "street": "Manzil",
+      "word": "So‘z",
+      "sentence": "Gap",
+      "paragraph": "Abzats",
+      "number": "Raqam",
+      "price": "Narx",
+      "boolean": "Mantiqiy qiymat",
+      "date": "Sana",
+      "enum": "Ro‘yxatdan qiymat",
+      "static": "Doimiy qiymat",
+      "template": "Andoza"
+    },
+    "options": {
+      "trigger": "{field} uchun sozlamalar",
+      "width": "Kengligi",
+      "height": "Balandligi",
+      "min": "Min",
+      "max": "Maks",
+      "symbol": "Valyuta belgisi",
+      "probability": "Ehtimollik (0–1)",
+      "from": "Dan",
+      "to": "Gacha",
+      "values": "Qiymatlar",
+      "addValue": "Qiymat qo‘shish",
+      "removeValue": "Qiymatni o‘chirish",
+      "value": "Qiymat",
+      "template": "Andoza",
+      "templateHint": "Boshqa maydon qiymatini qo‘yish uchun '{{fieldName}}' dan foydalaning."
+    },
+    "preview": {
+      "title": "Oldindan ko‘rish",
+      "empty": "Oldindan ko‘rish uchun maydon qo‘shing.",
+      "error": "Oldindan ko‘rish yaratilmadi. Yuqoridagi xatolarni tuzating va qayta urinib ko‘ring."
+    },
+    "settings": {
+      "title": "Resurs sozlamalari",
+      "count": "Yozuvlar soni",
+      "locale": "Ma’lumot tili",
+      "seed": "Seed",
+      "regenerateSeed": "Seedni qayta yaratish"
+    },
+    "toasts": {
+      "saveError": "O‘zgarishlar saqlanmadi. Qayta urinib ko‘ring.",
+      "reorderError": "Yangi tartib saqlanmadi — bekor qilindi."
     }
   }
 }

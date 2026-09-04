@@ -1,0 +1,51 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+
+import { fetchResources, resourcesQueryKey } from "@/components/projects/api";
+import { NewResourceDialog } from "@/components/projects/new-resource-dialog";
+import { ResourceCard } from "@/components/projects/resource-card";
+import type { ProjectDto, ResourceDto } from "@/lib/dto";
+
+export function ProjectDetailClient({
+  project,
+  initialResources,
+}: {
+  project: ProjectDto;
+  initialResources: ResourceDto[];
+}) {
+  const t = useTranslations("dashboard");
+  const { data: resources } = useQuery({
+    queryKey: resourcesQueryKey(project.id),
+    queryFn: () => fetchResources(project.id),
+    initialData: initialResources,
+  });
+
+  if (resources.length === 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="text-display text-ink">{project.name}</h1>
+        <div className="flex flex-col items-center gap-4 rounded-card border border-dashed border-line px-6 py-20 text-center">
+          <p className="text-body text-ink-muted">{t("resources.empty.title")}</p>
+          <NewResourceDialog projectId={project.id} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-display text-ink">{project.name}</h1>
+        <NewResourceDialog projectId={project.id} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {resources.map((resource) => (
+          <ResourceCard key={resource.id} resource={resource} />
+        ))}
+      </div>
+    </div>
+  );
+}

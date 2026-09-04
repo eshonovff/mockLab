@@ -86,6 +86,101 @@
     "toasts": {
       "created": "Project created",
       "error": "Something went wrong. Try again."
+    },
+    "resources": {
+      "recordCount": "{count, plural, one {# record} other {# records}}",
+      "fieldCount": "{count, plural, one {# field} other {# fields}}",
+      "empty": {
+        "title": "This project doesn't have any resources yet."
+      },
+      "newResource": {
+        "trigger": "New resource",
+        "title": "New resource",
+        "description": "Give your resource a name. You can add fields and shape its data next.",
+        "nameLabel": "Resource name",
+        "namePlaceholder": "products",
+        "submit": "Create resource"
+      },
+      "toasts": {
+        "created": "Resource created",
+        "error": "Something went wrong. Try again."
+      }
+    }
+  },
+  "builder": {
+    "backToProject": "Back to project",
+    "fields": {
+      "title": "Fields",
+      "empty": "No fields yet — add one to start shaping this resource's data.",
+      "addField": "Add field"
+    },
+    "field": {
+      "nameLabel": "Field name",
+      "typeLabel": "Field type",
+      "moveUp": "Move field up",
+      "moveDown": "Move field down",
+      "remove": "Remove {field}",
+      "errors": {
+        "pattern": "Must start with a lowercase letter — letters, numbers, and underscores only",
+        "duplicate": "Another field already uses this name"
+      }
+    },
+    "fieldTypes": {
+      "index": "Index",
+      "uuid": "UUID",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "avatar": "Avatar",
+      "image": "Image",
+      "city": "City",
+      "country": "Country",
+      "street": "Street address",
+      "word": "Word",
+      "sentence": "Sentence",
+      "paragraph": "Paragraph",
+      "number": "Number",
+      "price": "Price",
+      "boolean": "Boolean",
+      "date": "Date",
+      "enum": "Enum",
+      "static": "Static value",
+      "template": "Template"
+    },
+    "options": {
+      "trigger": "Options for {field}",
+      "width": "Width",
+      "height": "Height",
+      "min": "Min",
+      "max": "Max",
+      "symbol": "Currency symbol",
+      "probability": "Probability (0–1)",
+      "from": "From",
+      "to": "To",
+      "values": "Values",
+      "addValue": "Add value",
+      "removeValue": "Remove value",
+      "value": "Value",
+      "template": "Template",
+      "templateHint": "Use '{{fieldName}}' to insert another field's generated value."
+    },
+    "preview": {
+      "title": "Preview",
+      "empty": "Add a field to see a preview.",
+      "error": "Couldn't generate a preview. Fix any field errors above and try again."
+    },
+    "settings": {
+      "title": "Resource settings",
+      "count": "Record count",
+      "locale": "Data locale",
+      "seed": "Seed",
+      "regenerateSeed": "Regenerate seed"
+    },
+    "toasts": {
+      "saveError": "Couldn't save your changes. Try again.",
+      "reorderError": "Couldn't save the new order — it's been reverted."
     }
   }
 }

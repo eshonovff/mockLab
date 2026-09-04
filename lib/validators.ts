@@ -46,8 +46,11 @@ export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 // must not drag into a client bundle — lib/validators.ts is imported by client forms
 // (LoginForm, RegisterForm, NewProjectDialog) via zodResolver.
 
-const FIELD_NAME_PATTERN = /^[a-z][a-zA-Z0-9_]*$/;
-const MAX_SCHEMA_FIELDS = 30;
+// Exported so the schema builder UI (task 4.6) can validate a field name inline as the user
+// types, using the exact same rule the server enforces — not a hand-copied regex that could
+// drift from this one.
+export const FIELD_NAME_PATTERN = /^[a-z][a-zA-Z0-9_]*$/;
+export const MAX_SCHEMA_FIELDS = 30;
 
 // One object schema per field type, each with `options` narrowed to that type's own shape —
 // combined into a discriminated union on `type` below, so `{ type: "enum", options: { min: 1 }
