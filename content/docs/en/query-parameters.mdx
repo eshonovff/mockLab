@@ -61,6 +61,16 @@ find a record without knowing which field it's in.
 curl "https://{{domain}}/m/demo7k2m9x/products?search=vivid"
 ```
 
+## Invalid parameters
+
+`page`, `limit`, and `order` are the three parameters with a strict, checkable shape — `page`
+and `limit` must be positive integers, `order` must be exactly `asc` or `desc`. Send something
+else and the request never reaches your data: it fails fast with `422 Validation failed` and a
+body naming exactly which parameter was wrong. Everything else — `sort`, `search`, and every
+filter — has no fixed vocabulary to validate against, so a typo there (a filter on a field name
+that doesn't exist, for instance) isn't an error; it just matches nothing, since the server has
+no way to distinguish "wrong field name" from "a field that legitimately has no matching rows."
+
 ## Combining parameters
 
 All of the above compose in one request — filter, search, sort, and paginate together:

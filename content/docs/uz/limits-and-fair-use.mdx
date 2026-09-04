@@ -1,0 +1,80 @@
+---
+title: Chegaralar va adolatli foydalanish
+description: So‘rovlar chegarasi, javob hajmi, CORS va 10 000 yozuvlik saralash/filtrlash chegarasi — bir joyda.
+order: 8
+---
+
+{{brand}} amalga oshiradigan har bir qat’iy chegaraning qisqacha bayoni — shunda resursning
+qanday ishlashi haqida loyiha o‘rtasida hech narsa kutilmagan bo‘lmaydi.
+
+## So‘rovlar chegarasi
+
+Har bir loyiha o‘zining `/m/...` endpointlariga nisbatan daqiqasiga 60 ta so‘rov bilan
+cheklangan, loyiha kaliti bo‘yicha hisoblanadi — resurs bo‘yicha emas, shuning uchun uchta
+resursga ega loyiha barcha resurslar bo‘yicha bitta 60-so‘rovlik byudjetni baham ko‘radi. Har
+bir javob joriy oynada nechta so‘rov qolganini ko‘rsatuvchi `X-RateLimit-Remaining`
+sarlavhasini olib yuradi, so‘rov muvaffaqiyatli bo‘lganidan qat’i nazar — shunday qilib odobli
+mijoz bloklanganidan keyin bilib qolish o‘rniga oldindan sekinlashishi mumkin.
+
+Chegaradan oshsangiz, oyna qachon qayta tiklanishini bildiruvchi `Retry-After` sarlavhasi bilan
+`429 Too Many Requests` javobini olasiz.
+
+```js
+async function fetchWithBackoff(url) {
+  const response = await fetch(url);
+  if (response.status === 429) {
+    const retryAfterSeconds = Number(response.headers.get("Retry-After"));
+    await new Promise((resolve) => setTimeout(resolve, retryAfterSeconds * 1000));
+    return fetchWithBackoff(url);
+  }
+  return response;
+}
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useProducts() {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+    // TanStack Query already retries failed requests with backoff by default —
+    // a 429 here is retried automatically without any extra code.
+    retry: 3,
+  });
+}
+```
+
+## Sahifa hajmi
+
+`limit` standart bo‘yicha 10 ga teng va 100 bilan cheklangan — ko‘proq so‘rov xato bermaydi,
+shunchaki jimgina 100 gacha kamaytiriladi. Resursning umumiy yozuvlar `count`iga hech qanday
+chek yo‘q; chegara faqat bitta sahifada nechta yozuv qaytishiga taalluqli. To‘liq sahifalash
+sozlamalari uchun [So‘rov parametrlari](/docs/query-parameters) sahifasiga qarang.
+
+## 10 000 yozuvlik saralash/filtrlash chegarasi
+
+Saralash, filtrlash va qidiruv faqat 10 000 yoki undan kam yozuvga ega resurslarda mavjud.
+Undan yuqorida so‘rov hali ham muvaffaqiyatli bo‘ladi va to‘g‘ri sahifalanadi, lekin o‘sha
+parametrlar jimgina e’tiborsiz qoldiriladi — xato o‘rniga
+`X-MockLab-Notice: sort-filter-disabled-above-10000` javob sarlavhasi bilan belgilanadi, chunki
+so‘rovning o‘zi noto‘g‘ri emas. To‘liq asoslash
+[Generatsiya qanday ishlaydi](/docs/how-generation-works) sahifasida.
+
+## CORS
+
+Har bir `/m/...` javobi `Access-Control-Allow-Origin: *` va haqiqiy `OPTIONS` preflight
+ishlovchisini o‘z ichiga oladi, shuning uchun endpointingizni to‘g‘ridan-to‘g‘ri istalgan
+manbadagi brauzer JavaScript’idan proksisiz chaqirish ishlaydi. Ushbu hujjatlar davomida
+tasvirlangan bir nechta maxsus javob sarlavhalari (`X-Total-Count`, `X-RateLimit-Remaining` va
+qolganlari) `Access-Control-Expose-Headers` orqali aniq ochilgan, shuning uchun
+`response.headers.get(...)` ulardan har biri uchun faqat server tomonidan yoki buyruq satri
+mijozidangina emas, brauzer kodidan ham ishlaydi.
+
+## Nima haqiqatan ham cheksiz
+
+Qat’iy chekka ega bo‘lmagan yagona narsa — `count`, resursning umumiy yozuvlar hajmi. Bu esa
+butun mohiyati: yozuvlar saqlanish o‘rniga talab bo‘yicha generatsiya qilingani uchun, million
+yozuvga ega resurs serverga o‘nta yozuvli resurs bilan bir xil qiymatga tushadi. Yuqoridagi
+chegaralar har qanday alohida resurs nimani ifodalashi mumkinligini cheklash uchun emas, xizmatni
+uni baham ko‘rayotgan har bir loyiha uchun adolatli saqlash uchun mavjud.

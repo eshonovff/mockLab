@@ -1,0 +1,88 @@
+---
+title: Tez-tez so‘raladigan savollar
+description: Resursga qarshi haqiqatan ham loyiha qurayotganingizda paydo bo‘ladigan savollarga javoblar.
+order: 9
+---
+
+## Endpointimni chaqirish uchun API kaliti yoki autentifikatsiya kerakmi?
+
+Yo‘q. Endpoint manzilingizdagi loyiha `key`si (`/m/{project-key}/{resource-name}`) so‘rovlarni
+loyihangizga bog‘laydi — yuborish uchun alohida API kaliti yoki auth sarlavhasi yo‘q. Bu resursni
+yo‘qotadigan sirsiz to‘g‘ridan-to‘g‘ri brauzer JavaScript’idan chaqirib bo‘ladigan qiladi —
+bu muhim, chunki CORS aynan brauzer kodi to‘g‘ridan-to‘g‘ri chaqira olishi uchun standart holatda
+yoqilgan.
+
+## Nega mening `price_gt=50` filtrim ishlamayapti?
+
+Faqat to‘rtta filtr qo‘shimchasi mavjud: `_gte`, `_lte`, `_ne` va `_like` — `_gt` yoki `_lt`
+(qat’iy katta/kichik, "yoki teng"siz) yo‘q. Ammo `price_gt=50` noto‘g‘ri deb rad etilmaydi;
+u tanilgan hech qanday qo‘shimchaga mos kelmagani uchun, aynan `price_gt` deb nomlangan
+maydonga oddiy tenglik filtri sifatida qaraladi — bu maydon deyarli aniq sxemangizda mavjud
+emas — shuning uchun jimgina hech nimaga mos kelmaydi. Butun son maydonida qat’iy tengsizlikni
+ifodalash uchun `price_gte=51` (yoki `_lte=49`) dan foydalaning, yoki `price` maydoni uchun
+"yoki teng" chegarasini shunchaki qabul qiling, chunki generatsiya qilingan kasr sonda aniq
+tenglik siz aslida xohlagan narsa bo‘lishi kam.
+
+## Har bir so‘rovda bir xil yozuvni qaytarib olishim mumkinmi?
+
+Ha, va siz allaqachon shunday qilyapsiz —
+[Generatsiya qanday ishlaydi](/docs/how-generation-works) sahifasidagi determinizm kafolati aynan
+shu. O‘zgartirilmagan bir xil resurs har qanday mijozdan, har doim, unga yozmaguningizcha yoki
+uni qayta tiklamaguningizcha, bir xil so‘rov uchun bir xil ma’lumotni qaytaradi. Bu esa
+belgilangan kutilgan qiymatlarga qarshi sinov yoki demo skripti yozishni xavfsiz qiladi.
+
+## Nega mening saralash/filtrlash so‘rovim to‘satdan ishlamay qoldi?
+
+Resursingizning yozuvlar `count`ini tekshiring. Saralash, qidiruv va filtrlash faqat 10 000
+yoki undan kam yozuvda mavjud; undan yuqorida ular xato berish o‘rniga jimgina o‘chiriladi, va
+bu sodir bo‘lganda javob `X-MockLab-Notice: sort-filter-disabled-above-10000` sarlavhasini olib
+yuradi. To‘liq tasvir uchun [Chegaralar va adolatli foydalanish](/docs/limits-and-fair-use)
+sahifasiga qarang.
+
+## Yozuvni o‘chirish uning `id`sini qayta foydalanish uchun bo‘shatib beradimi?
+
+Yo‘q — o‘chirilgan yozuvning `id`si hech qachon qaytmaydi. O‘chirish o‘sha id’ni yo‘qolgan
+deb belgilaydigan override sifatida saqlanadi, generatsiyaning o‘zini bekor qilish sifatida
+emas — shuning uchun resurs qayta tiklanmaguncha xuddi shu id ishonchli tarzda "o‘chirilgan"
+degan ma’noni anglatishda davom etadi.
+
+## Ikki xil interfeys tili bir xil resurs uchun turli soxta ma’lumot generatsiya qila oladimi?
+
+Ha, va bular atayin bir-biridan mustaqil. Resurs o‘zining soxta ma’lumot `locale`siga ega —
+`en`, `ru` va hokazo — resursni sozlaganingizda bir marta belgilanadi va qaysi tilda ismlar,
+shaharlar va manzillar generatsiya bo‘lishini boshqaradi. Bu boshqaruv panelingiz qaysi tilda
+ko‘rsatilishi bilan hech qanday aloqasi yo‘q; siz boshqaruv panelini bitta tilda ko‘rib turib,
+resurs boshqa tilda soxta ma’lumot generatsiya qilishini ko‘rishingiz mumkin.
+
+## Butun sahifa o‘rniga bitta yozuvni qanday olaman?
+
+Ro‘yxat javobidan allaqachon olgan id’ni ishlatib, bitta-yozuv manziliga to‘g‘ridan-to‘g‘ri
+`GET` yuboring: `/m/{project-key}/{resource-name}/{id}`:
+
+```js
+const list = await fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json());
+const first = await fetch(`https://{{domain}}/m/demo7k2m9x/products/${list[0].id}`).then((res) =>
+  res.json(),
+);
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useProduct(id) {
+  return useQuery({
+    queryKey: ["products", id],
+    queryFn: () =>
+      fetch(`https://{{domain}}/m/demo7k2m9x/products/${id}`).then((res) => res.json()),
+    enabled: Boolean(id),
+  });
+}
+```
+
+## Bu yerda biror narsa ko‘rayotganimga mos kelmayapti — endi nima qilaman?
+
+Ushbu hujjatlar davomida tilga olingan har bir javob sarlavhasi (`X-Total-Count`,
+`X-RateLimit-Remaining`, `X-MockLab-Notice`, `Retry-After`) haqiqiy, tekshirib bo‘ladigan
+signal, faqat ichki xatti-harakat emas — mos kelmaslikni deyarli har doim so‘rovning haqiqiy
+sarlavhalari nima deyishidan tushuntirib bo‘ladi. Biror narsa buzilgan deb hisoblashdan oldin
+o‘shandan boshlang.

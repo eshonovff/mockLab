@@ -1,0 +1,89 @@
+---
+title: Ma’lumotlarni qayta tiklash
+description: Resursdagi barcha yozishlarni tozalab, sof generatsiya qilingan asosga qanday qaytish mumkin.
+order: 6
+---
+
+Resursga qarshi har bir yozish — har bir `POST`, `PUT`, `PATCH` va `DELETE` — generatsiya
+qilingan ma’lumot ustiga qo‘yiladigan kichik override sifatida saqlanadi, hech qachon
+generatsiyaning o‘ziga o‘zgartirish sifatida emas. Bu shuni anglatadiki, ularning barchasini
+bekor qilish yagona, to‘liq, tezkor amal: resursni qayta tiklang, va har bir override
+o‘chiriladi. Keyingi o‘qish xuddi shu sxema, seed va yozuvlar soniga ega yangi resursdan
+olishingiz mumkin bo‘lgan ma’lumotni qayta generatsiya qiladi — bayt-baytiga bir xil, chunki
+generatsiya mantig‘i hech qachon o‘zgarmagan.
+
+## Bu nima uchun xavfsiz
+
+Buni haqiqiy ma’lumotlar bazasiga yozilgan qatorlarga tayangan soxta API vositasi bilan
+solishtiring: u yerda "qayta tiklash" odatda seed skriptini qayta ishga tushirishni anglatadi,
+va agar skript yoki uning tasodifiylik manbai bir oz o‘zgargan bo‘lsa, u aynan avvalgisini
+takrorlashiga hech qanday kafolat yo‘q. {{brand}}ning qayta tiklashida bunday xavf yo‘q, chunki
+generatsiya qilingan asosga umuman tegilmagan — yozishlaringiz butunlay alohida override
+qatlamida yashagan. O‘sha qatlamni o‘chirish — bu qayta tiklashning o‘zi, noto‘g‘ri qayta
+generatsiya qilinadigan hech narsa qolmaydi.
+
+## Qayerdan qayta tiklash kerak
+
+Qayta tiklash — loyiha egasining amali, umumiy API iste’molchisi chaqiradigan narsa emas — u
+`/m/...` endpointingiz emas, balki boshqaruv paneli sessiyangiz ortida yashaydi. Boshqaruv
+panelidagi resursingiz sahifasidan, o‘sha resurs uchun barcha override’larni tozalash uchun
+qayta tiklash amalidan foydalaning. Atrofida skript yozadigan tasdiqlash bosqichi yo‘q va
+qisman qayta tiklash yo‘q: bu, dizayn bo‘yicha, hammasi yoki hech narsa, chunki tanlab qayta
+tiklash "bu men saqlab qolmoqchi bo‘lgan atayin qilingan tahrir" bilan "bu sinov ma’lumoti"
+o‘rtasidagi farqni bilishi kerak bo‘lar edi — API buni bilishning iloji yo‘q.
+
+## Aslida nima sodir bo‘ladi
+
+Qopqoq ostida, qayta tiklash resursga tegishli har bir override qatorini o‘chiradi va uning
+ichki ma’lumot versiyasini oshiradi — bu xuddi o‘qishlaringiz xizmat qiladigan xotiradagi
+keshning kalitidagi versiya raqami. O‘sha yagona oshirish har qanday server jarayonida
+o‘sha resurs uchun har bir keshlangan sahifani bekor qiladi; keyingi `GET`, qayerdan bo‘lmasin,
+toza holatdan qayta generatsiya qiladi va qayta keshlaydi.
+
+## Buni qachon ishlatasiz
+
+Qayta tiklash rivojlanish jarayonida eng foydali: ilovangizning interfeysi orqali resursni
+titkilab ko‘rgansiz — sinov yozuvlarini yaratgansiz, bir nechtasini o‘chirgansiz, chekka holatni
+tekshirish uchun narxlarni patch qilgansiz — va demo qilishdan, sinovdan o‘tkazishdan yoki
+endpointni boshqasiga topshirishdan oldin yana toza asosga ega bo‘lmoqchisiz. Generatsiya
+deterministik bo‘lgani uchun, qayta tiklangan resursga keyinroq murojaat qilgan har kim aynan
+bir xil ma’lumotni ko‘radi — bu esa belgilangan kutilgan qiymatlarga qarshi sinov yoki hujjat
+yozishni osonlashtiradi.
+
+## Qayta tiklashdan keyin ma’lumot o‘qish
+
+Qayta tiklashdan keyin resursni o‘qish har doimgidek xuddi shu endpointdan foydalanadi —
+manzil yoki javob shaklida hech narsa o‘zgarmaydi:
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+// Identical to a fresh resource with the same schema, seed and count.
+```
+
+```jsx
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+function ProductList() {
+  const queryClient = useQueryClient();
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  // After resetting from the dashboard, invalidate the cached query so the
+  // next render reflects the clean baseline instead of stale overridden data.
+  const refetchAfterReset = () => queryClient.invalidateQueries({ queryKey: ["products"] });
+
+  return (
+    <>
+      <button onClick={refetchAfterReset}>Refresh</button>
+      <ul>
+        {products?.map((p) => (
+          <li key={p.id}>{p.title}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```

@@ -1,0 +1,89 @@
+---
+title: Generatsiya qanday ishlaydi
+description: Seed, determinizm va saralash/filtrlashdagi 10 000 yozuvlik ochiq chegara.
+order: 7
+---
+
+Bu sahifa {{brand}}ning markaziy da’vosi — yozuvlar soniga chek yo‘qligi — ortidagi mexanizmni
+shunchalik ochiq tushuntiradiki, siz uning haqiqiy o‘zaro almashinuvlari haqida fikr yurita
+olasiz, shunchaki marketingga ishonib qolmaysiz.
+
+## Seed
+
+Har bir resurs `seed`ga ega: resurs yaratilganda tayinlangan qisqa tasodifiy satr. Seed, yozuv
+indeksi (uning ro‘yxatdagi o‘rni — `0`, `1`, `2` va hokazo) bilan birga, generatsiyaga kerak
+bo‘ladigan yagona kirish ma’lumoti. Bir xil seed va bir xil indeks berilganda, bir xil maydon
+turlari, bir xil tartibda, har doim bir xil qiymatlarni hosil qiladi — istalgan mashinada,
+istalgan jarayonda, hech qachon ma’lumotlar bazasiga yozilmasdan.
+
+## Mexanizm
+
+`i` yozuv indeksi uchun server `seed + ":" + i`ning raqamli xesh’ini hisoblaydi va uni kichik,
+tez psevdo-tasodifiy son generatorini urug‘lantirish uchun ishlatadi. Sxemadagi har bir maydon
+o‘sha bitta generatordan, maydonlar sxemada paydo bo‘lgan tartibda oladi — bu aynan
+sxema quruvchisida maydonlarni qayta tartiblash har bir maydon nima hosil qilishini
+o‘zgartirishining sababi (har bir maydonning ketma-ketlikdan olishi siljiydi), mavjud maydonga
+_sozlama_ qo‘shish esa faqat o‘sha maydonning natijasini o‘zgartiradi. Yozuvning `id`si atayin
+`seed + ":id:" + i`dan urug‘lantirilgan _alohida_ ketma-ketlikdan generatsiya qilinadi —
+ma’lumot maydonlaridan mustaqil — aynan shu sababdan sxemangiz maydonlarini tahrirlash mavjud
+yozuvlarga allaqachon berilgan id’larni hech qachon o‘zgartirmaydi.
+
+Bu, shuningdek, million yozuv generatsiya qilish deyarli hech narsaga tushmasligining sababi:
+hech qanday qidiruv, ma’lumotlar bazasi qatori, yozuv boshiga saqlanadigan holat umuman yo‘q.
+Server har bir yozuv, har bir so‘rov uchun kichik hisob-kitob bajaradi, va faqat siz aslida
+so‘ragan sahifadagi yozuvlar uchun.
+
+## Aslida nima saqlanadi
+
+Generatsiya qilingan ma’lumot haqida hech narsa hech qachon saqlanmaydi. Saqlanadigan yagona
+narsa — sizning override’laringiz — qilgan har bir `POST`, `PUT`, `PATCH` va `DELETE`ingizning
+natijasi (qarang:
+[Yozuv yaratish, yangilash va o‘chirish](/docs/creating-updating-deleting)). O‘qish so‘rovi
+so‘ralgan yozuvlar oynasini generatsiya qiladi, ustiga har qanday override’larni birlashtiradi
+(tahrirlangan yozuvlarni almashtiradi, o‘chirilganlarini olib tashlaydi, yangi
+yaratilganlarini qo‘shadi), so‘ng filtrlaydi, qidiradi, saralaydi va sahifalaydi.
+
+## Halol chegara: 10 000 yozuv
+
+10 000 yoki undan kam yozuvga ega resurslar uchun server har bir ma’lumot versiyasida
+birlashtirilgan butun to‘plamni xotirada bir marta yig‘adi va filtrlash, qidiruv hamda
+saralashni o‘shandan xizmat qiladi. 10 000 dan yuqorida esa filtrlash, qidiruv va saralash
+butunlay o‘chirilgan — faqat sahifalash ishlaydi. Bu marketing izohi emas: bundan ta’sirlangan
+javob haqiqiy, tekshirib bo‘ladigan sarlavha olib yuradi —
+`X-MockLab-Notice: sort-filter-disabled-above-10000` — shunday qilib kodingiz (yoki tarmoq
+yorlig‘ini o‘qiyotgan siz) buni sezmasdan saralanmagan yoki filtrlanmagan natijalarni jimgina
+olish o‘rniga, sodir bo‘lganini bilib olishingiz mumkin.
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/logs?sort=createdAt");
+if (response.headers.get("X-MockLab-Notice") === "sort-filter-disabled-above-10000") {
+  console.warn("This resource is too large for sort/filter — showing unsorted pages instead.");
+}
+const records = await response.json();
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function useSortedRecords(sort) {
+  return useQuery({
+    queryKey: ["logs", sort],
+    queryFn: async () => {
+      const res = await fetch(`https://{{domain}}/m/demo7k2m9x/logs?sort=${sort}`);
+      return {
+        records: await res.json(),
+        sortDisabled: res.headers.get("X-MockLab-Notice") === "sort-filter-disabled-above-10000",
+      };
+    },
+  });
+}
+```
+
+Xuddi shu chegara 10 000 dan yuqori bitta-yozuv marshrutlariga ham bog‘liq tarzda ta’sir
+qiladi: `GET`, `PUT`, `PATCH` va `DELETE` id bo‘yicha faqat allaqachon override olib yuradigan
+yozuvlar uchun ishlaydi, chunki ixtiyoriy id’ni uning generatsiya indeksiga qaytarish moslik
+topilguncha yozuvlarni generatsiya qilishni anglatadi — bu aynan chegara oldini olmoqchi bo‘lgan
+cheklanmagan skanerlash. 10 000 dan past yozuvlarda esa buning hech biri qo‘llanilmaydi; har
+bir yozuv darhol id bo‘yicha manzillanadi, saralash va filtrlash doim mavjud, va ogohlantirish
+sarlavhasi hech qachon chiqmaydi. Kelajakdagi versiya bu chegarani to‘g‘ri indeks bilan
+oshiradi; hozircha bu yashirilmasdan, hujjatlashtirilgan.

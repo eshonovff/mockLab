@@ -1,0 +1,93 @@
+---
+title: Tezkor boshlanish
+description: Ro‘yxatdan o‘tishdan jonli, ishlaydigan REST endpointgacha besh daqiqa.
+order: 2
+---
+
+Bu qo‘llanma hech narsadan o‘z ilovangizdan chaqira oladigan haqiqiy endpointgacha bo‘lgan eng
+qisqa yo‘lni ko‘rsatadi. Bu taxminan besh daqiqa vaqt oladi.
+
+## 1. Hisob yarating
+
+`/register` sahifasida email va parol bilan ro‘yxatdan o‘ting. Boshqaruv panelingizga
+tushasiz — hali loyiha yaratmagan bo‘lganingiz uchun bo‘sh bo‘ladi.
+
+## 2. Loyiha yarating
+
+Loyiha — bu shunchaki nom fazosi: u bir yoki bir nechta resursni o‘z ichiga oladi va har bir
+endpoint manzilida ko‘rinadigan `key`ga egalik qiladi. **Yangi loyiha** tugmasini bosing, unga
+nom bering, va {{brand}} siz uchun tasodifiy loyiha kaliti generatsiya qiladi — masalan,
+`demo7k2m9x` kabi. Bu kalitni o‘zingiz hech qachon tanlamaysiz; bu shuning uchun kerakki,
+endpoint manzilingiz loyiha nomingizdan taxmin qilib bo‘lmaydigan bo‘lsin.
+
+## 3. Resurs yarating
+
+Loyihangiz ichida resurs yarating va unga nom bering — aytaylik, `products`. Resurs — bu bitta
+sxema: har biri o‘z turiga ega maydonlar ro‘yxati. Sinab ko‘rish uchun uchta maydon qo‘shing:
+
+| Maydon nomi | Turi    | Izoh                                |
+| ----------- | ------- | ----------------------------------- |
+| `title`     | word    | bitta generatsiya qilingan so‘z     |
+| `price`     | price   | `symbol` sozlamasini `$` ga qo‘ying |
+| `inStock`   | boolean | true/false                          |
+
+Qo‘shgan har bir maydon xuddi shu ekrandagi jonli oldindan ko‘rish jadvalini yangilaydi — shunday
+qilib mijoz kodini yozishdan oldin haqiqiy generatsiya qilingan qatorlarni ko‘rasiz. **Yozuvlar
+soni**ni o‘zingizga kerakli qiymatga qo‘ying — tezkor sinov uchun 50, "yozuvlar soniga chek
+yo‘q" da’vosining haqiqatan ham to‘g‘riligini ko‘rish uchun 100 000. Qaysi raqamni tanlamang,
+bitta sahifaning javob vaqti deyarli o‘zgarmaydi, chunki {{brand}} bitta so‘rov uchun hech qachon
+bir sahifadan ortiq yozuv generatsiya qilmaydi.
+
+## 4. Endpointingizni chaqiring
+
+Resursingizning endpointi uni yaratgan zahotingoq faol bo‘ladi — alohida "nashr qilish" yoki
+"joylashtirish" bosqichi yo‘q. To‘liq manzil bitta naqshga amal qiladi:
+
+```
+https://{{domain}}/m/{project-key}/{resource-name}
+```
+
+Demak, yuqoridagi loyiha va resurs uchun:
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+console.log(products[0]);
+// { id: "a1b2c3d4-...", title: "vivid", price: "$48.19", inStock: true }
+```
+
+TanStack Query bilan React komponentida xuddi shu chaqiruv shunday ko‘rinadi:
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function ProductList() {
+  const {
+    data: products,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  if (isPending) return <p>Loading…</p>;
+  if (isError) return <p>Something went wrong.</p>;
+
+  return (
+    <ul>
+      {products.map((product) => (
+        <li key={product.id}>
+          {product.title} — {product.price}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Tamom — o‘zingizning serveringiz bo‘lmasa ham sahifalash, filtrlash, saralash va to‘liq CRUD
+bilan haqiqiy REST resursi tayyor. Bu yerdan keyin:
+[Sxema va maydon turlari](/docs/schema-and-field-types) resursingiz uchun mavjud har bir maydon
+turini yoritadi, [So‘rov parametrlari](/docs/query-parameters) esa manzil orqali ro‘yxat
+endpointida qila oladigan hamma narsani qamrab oladi.

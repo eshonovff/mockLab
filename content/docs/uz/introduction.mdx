@@ -1,0 +1,79 @@
+---
+title: Kirish
+description: "{{brand}} nima, u yozuvlar soni cheklangan soxta API’lardan nimasi bilan farq qiladi va qismlari qanday birlashadi."
+order: 1
+---
+
+{{brand}} — bu bulutda joylashgan soxta REST API. Siz resursni — uning maydonlarini va ularning
+turlarini — tasvirlaysiz, va javobida haqiqiy, ishlaydigan REST endpoint olasiz: to‘liq CRUD,
+sahifalash, saralash, filtrlash va qidiruv, realistik generatsiya qilingan ma’lumotlar bilan
+ta’minlangan. Yozadigan serveringiz, urug‘lantiradigan ma’lumotlar bazangiz yoki doim
+o‘zgarib turadigan sxema bilan sinxronlab turishingiz kerak bo‘lgan fixture fayllaringiz
+bo‘lmaydi.
+
+## Asosiy g‘oya: generatsiya qiling, saqlamang
+
+Ko‘pchilik soxta API vositalari oldindan haqiqiy ma’lumotlar bazasiga qatorlar qo‘shish orqali
+ishlaydi — bu esa so‘ray oladigan ma’lumot miqdorini kimdir necha qator qo‘shishga rozi
+bo‘lganiga bog‘liq qilib qo‘yadi: bir necha yuzta, ko‘pi bilan bir necha mingta. {{brand}}
+boshqacha ishlaydi. Har bir yozuv resursning seed’i va yozuvning indeksi asosida, aynan so‘rov
+yuborilgan paytda deterministik tarzda hisoblanadi. `#41`-yozuvni so‘rang — server
+`(seed, 41)`dan urug‘lantirilgan kichik, tez psevdo-tasodifiy generatorni ishga tushiradi va har
+safar bir xil maydonlarni hosil qiladi — istalgan serverda, istalgan jarayonda, ma’lumotlar
+bazasiga hech qachon murojaat qilmasdan. 1 000 000 ta yozuv so‘rasangiz ham javob xuddi shu
+tarzda oqib keladi; faqat `count` bilan emas, siz bitta sahifada nechta yozuv so‘rasangiz —
+o‘sha bilan bog‘liq bo‘ladi, serverning nechta yozuvni saqlashi bilan emas.
+
+Saqlanadigan yagona narsa — bu sizning o‘z tahrirlaringiz. `POST`, `PUT`, `PATCH` yoki `DELETE`
+so‘rovi yuborganingizda, o‘sha o‘zgarish generatsiya qilingan asosning ustiga qo‘yiladigan kichik
+override sifatida saqlanadi. O‘qish so‘rovi override’laringizni generatsiya qilingan oqimga
+birlashtiradi, natijani filtrlaydi va saralaydi, so‘ng sahifani qaytaradi. Resursni qayta
+tiklasangiz, override’lar yo‘qoladi — siz qayta tegmagan sof generatsiya qilingan ma’lumotga,
+bayt-baytiga bir xil holatga qaytasiz.
+
+## Har bir resursda nima olasiz
+
+- `https://{{domain}}/m/{project-key}/{resource-name}` manzilida jonli REST endpoint
+- `GET` (ro‘yxat, sahifalash/saralash/filtrlash/qidiruv bilan) va `GET` (bitta yozuv)
+- `POST`, `PUT`, `PATCH`, `DELETE` — haqiqiy yozish yo‘li, faqat o‘qish uchun mock emas
+- Standart holatda yoqilgan CORS — brauzerdan to‘g‘ridan-to‘g‘ri chaqirishingiz mumkin
+- Interfeys tilingizdan mustaqil soxta ma’lumot tili — `en`, `ru` va boshqalar o‘sha tilda
+  realistik ismlar, shaharlar va manzillar generatsiya qiladi
+
+## Bu kimlar uchun
+
+Haqiqiy backend hali mavjud bo‘lmasdan turib unga muhtoj bo‘lgan frontend dasturchilar,
+o‘z serverini ko‘tarmasdan REST API’dan foydalanishni o‘rganayotgan talabalar, va birinchi qadam
+sifatida ma’lumotlar bazasi migratsiyasini istamaydigan har qanday interfeys prototiplovchisi.
+Agar avval yozuvlar soni cheklangan soxta API xizmatidan foydalangan va uning chegarasiga
+duch kelgan bo‘lsangiz, qolgan hujjatlar tanish tuyuladi — xuddi shu konventsiyalar, faqat
+chegarasiz.
+
+Beshtacha daqiqada jonli endpointga ega bo‘lish uchun [Tezkor boshlanish](/docs/quick-start)ga
+o‘ting, yoki to‘liq maydon ma’lumotnomasi uchun
+[Sxema va maydon turlari](/docs/schema-and-field-types)ga o‘ting.
+
+```js
+const response = await fetch("https://{{domain}}/m/demo7k2m9x/products");
+const products = await response.json();
+```
+
+```jsx
+import { useQuery } from "@tanstack/react-query";
+
+function ProductList() {
+  const { data: products, isPending } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetch("https://{{domain}}/m/demo7k2m9x/products").then((res) => res.json()),
+  });
+
+  if (isPending) return <p>Loading…</p>;
+  return (
+    <ul>
+      {products.map((product) => (
+        <li key={product.id}>{product.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
