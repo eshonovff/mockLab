@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 
+import { BrandMark } from "@/components/marketing/brand-mark";
 import { Link } from "@/i18n/navigation";
 import { brand } from "@/lib/brand";
 import { localeLabels, locales } from "@/lib/locales";
@@ -15,8 +16,8 @@ export function MarketingFooter() {
   return (
     <footer className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-6 border-t border-line pt-8 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <span className="text-h3 text-ink">{brand.name}</span>
+        <div className="flex flex-col gap-2">
+          <BrandMark className="h-8 w-auto text-ink" />
           <p className="text-caption text-ink-muted">{t("tagline")}</p>
         </div>
 

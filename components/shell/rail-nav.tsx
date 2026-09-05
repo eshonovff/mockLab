@@ -3,6 +3,7 @@
 import { BookOpen, LayoutDashboard, LifeBuoy, Settings, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { BrandMark } from "@/components/marketing/brand-mark";
 import { Link, usePathname } from "@/i18n/navigation";
 import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
@@ -38,12 +39,9 @@ export function RailNav({
       <Link
         href="/dashboard"
         onClick={onNavigate}
-        className="flex items-center gap-2 rounded-control px-2 py-1.5"
+        className="text-surface flex items-center rounded-control px-2 py-1.5"
       >
-        <span className="bg-accent text-surface flex size-7 shrink-0 items-center justify-center rounded-control text-sm font-semibold">
-          {brand.shortName.charAt(0)}
-        </span>
-        <span className="text-surface text-body font-medium">{brand.shortName}</span>
+        <BrandMark className="h-9 w-auto" />
       </Link>
 
       <nav className="flex flex-1 flex-col gap-1">
