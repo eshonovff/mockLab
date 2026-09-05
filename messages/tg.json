@@ -120,6 +120,12 @@
         "created": "Захира сохта шуд",
         "error": "Хатогӣ рух дод. Бори дигар кӯшиш кунед."
       }
+    },
+    "requests": {
+      "title": "Дархостҳо",
+      "today": "{count, plural, other {Имрӯз # дархост}}",
+      "summary": "{total, plural, other {Дар 30 рӯзи охир # дархост}}",
+      "last30Days": "30 рӯзи охир"
     }
   },
   "builder": {
@@ -356,7 +362,8 @@
     "stats": {
       "users": "Корбарон",
       "projects": "Лоиҳаҳо",
-      "resources": "Захираҳо"
+      "resources": "Захираҳо",
+      "requestsToday": "Дархостҳо имрӯз"
     },
     "users": {
       "title": "Корбарон",

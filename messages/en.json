@@ -120,6 +120,12 @@
         "created": "Resource created",
         "error": "Something went wrong. Try again."
       }
+    },
+    "requests": {
+      "title": "Requests",
+      "today": "{count, plural, one {# request today} other {# requests today}}",
+      "summary": "{total, plural, one {# request in the last 30 days} other {# requests in the last 30 days}}",
+      "last30Days": "Last 30 days"
     }
   },
   "builder": {
@@ -356,7 +362,8 @@
     "stats": {
       "users": "Users",
       "projects": "Projects",
-      "resources": "Resources"
+      "resources": "Resources",
+      "requestsToday": "Requests today"
     },
     "users": {
       "title": "Users",

@@ -7,7 +7,7 @@ import { ADMIN_STATS_QUERY_KEY, fetchAdminStats } from "@/components/admin/api";
 import { Card } from "@/components/ui/card";
 import type { AdminStatsDto } from "@/lib/dto";
 
-const STAT_KEYS = ["users", "projects", "resources"] as const;
+const STAT_KEYS = ["users", "projects", "resources", "requestsToday"] as const;
 
 export function StatCards({ initialStats }: { initialStats: AdminStatsDto }) {
   const t = useTranslations("admin.stats");
@@ -18,7 +18,7 @@ export function StatCards({ initialStats }: { initialStats: AdminStatsDto }) {
   });
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {STAT_KEYS.map((key) => (
         <Card key={key} className="gap-1.5">
           <p className="text-caption text-ink-muted px-(--card-spacing)">{t(key)}</p>

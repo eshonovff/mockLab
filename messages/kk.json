@@ -121,6 +121,12 @@
         "created": "Ресурс құрылды",
         "error": "Бірдеңе дұрыс болмады. Қайта көріңіз."
       }
+    },
+    "requests": {
+      "title": "Сұраныстар",
+      "today": "{count, plural, other {Бүгін # сұраныс}}",
+      "summary": "{total, plural, other {Соңғы 30 күнде # сұраныс}}",
+      "last30Days": "Соңғы 30 күн"
     }
   },
   "builder": {
@@ -357,7 +363,8 @@
     "stats": {
       "users": "Пайдаланушылар",
       "projects": "Жобалар",
-      "resources": "Ресурстар"
+      "resources": "Ресурстар",
+      "requestsToday": "Бүгінгі сұраныстар"
     },
     "users": {
       "title": "Пайдаланушылар",

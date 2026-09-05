@@ -11,6 +11,7 @@ import {
   withRateLimitHeaders,
 } from "@/lib/mock-api";
 import { db } from "@/lib/db";
+import { recordRequest } from "@/lib/metering";
 import { parseQuery } from "@/lib/query";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
 import type { Prisma } from "@prisma/client";
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   if (!resolved) {
     return jsonError(404, "Not found", undefined, rateLimitHeaders);
   }
+  await recordRequest(resolved.project.id);
 
   const parsedQuery = parseQuery(request.nextUrl.searchParams);
   if (!parsedQuery.success) {
@@ -123,6 +125,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   if (!resolved) {
     return jsonError(404, "Not found", undefined, rateLimitHeaders);
   }
+  await recordRequest(resolved.project.id);
 
   const body: unknown = await request.json().catch(() => null);
   // Field-level validation against the resource's own schema is explicitly out of scope for v1

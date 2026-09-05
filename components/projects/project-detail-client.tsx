@@ -6,15 +6,18 @@ import { useTranslations } from "next-intl";
 import { fetchResources, resourcesQueryKey } from "@/components/projects/api";
 import { JsonImportDialog } from "@/components/projects/json-import-dialog";
 import { NewResourceDialog } from "@/components/projects/new-resource-dialog";
+import { RequestMetricsCard } from "@/components/projects/request-metrics-card";
 import { ResourceCard } from "@/components/projects/resource-card";
-import type { ProjectDto, ResourceDto } from "@/lib/dto";
+import type { ProjectDto, RequestMetricsDto, ResourceDto } from "@/lib/dto";
 
 export function ProjectDetailClient({
   project,
   initialResources,
+  initialRequestMetrics,
 }: {
   project: ProjectDto;
   initialResources: ResourceDto[];
+  initialRequestMetrics: RequestMetricsDto;
 }) {
   const t = useTranslations("dashboard");
   const { data: resources } = useQuery({
@@ -47,6 +50,8 @@ export function ProjectDetailClient({
           <JsonImportDialog projectId={project.id} />
         </div>
       </div>
+
+      <RequestMetricsCard projectId={project.id} initialMetrics={initialRequestMetrics} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {resources.map((resource) => (

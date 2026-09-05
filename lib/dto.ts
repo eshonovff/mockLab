@@ -37,6 +37,9 @@ export type AdminStatsDto = {
   users: number;
   projects: number;
   resources: number;
+  // Added in task 8.3 once request metering existed — 8.1 deliberately omitted this rather than
+  // shipping a fake `0` ahead of the real counter.
+  requestsToday: number;
 };
 
 export type AdminUserDto = {
@@ -63,4 +66,11 @@ export type AdminProjectDto = {
   createdAt: string;
   resourceCount: number;
   owner: { id: string; email: string; name: string | null };
+};
+
+// Task 8.3: per-project request metering, surfaced on the project's own dashboard page.
+export type RequestMetricsDto = {
+  today: number;
+  /** Last 30 UTC days, oldest first, zero-filled — never has a gap for a quiet day. */
+  daily: { date: string; count: number }[];
 };

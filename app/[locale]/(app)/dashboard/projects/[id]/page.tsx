@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { ProjectDto, ResourceDto } from "@/lib/dto";
 import type { Locale } from "@/lib/locales";
+import { getProjectRequestMetrics } from "@/lib/metering";
 
 // The (app) layout (task 2.4) already redirects unauthenticated requests before this page ever
 // renders — this re-check is cheap defense-in-depth, not the primary guard.
@@ -32,18 +33,21 @@ export default async function ProjectDetailPage({
 
   if (!project) notFound();
 
-  const resources = await db.resource.findMany({
-    where: { projectId: project.id },
-    select: {
-      id: true,
-      projectId: true,
-      name: true,
-      schema: true,
-      seed: true,
-      count: true,
-      dataVersion: true,
-    },
-  });
+  const [resources, initialRequestMetrics] = await Promise.all([
+    db.resource.findMany({
+      where: { projectId: project.id },
+      select: {
+        id: true,
+        projectId: true,
+        name: true,
+        schema: true,
+        seed: true,
+        count: true,
+        dataVersion: true,
+      },
+    }),
+    getProjectRequestMetrics(project.id),
+  ]);
 
   const projectDto: ProjectDto = {
     id: project.id,
@@ -63,5 +67,11 @@ export default async function ProjectDetailPage({
     dataVersion: resource.dataVersion,
   }));
 
-  return <ProjectDetailClient project={projectDto} initialResources={initialResources} />;
+  return (
+    <ProjectDetailClient
+      project={projectDto}
+      initialResources={initialResources}
+      initialRequestMetrics={initialRequestMetrics}
+    />
+  );
 }

@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { AdminProjectDto, AdminStatsDto, AdminUserDto, AdminUsersListDto } from "@/lib/dto";
 import type { Locale } from "@/lib/locales";
+import { getTotalRequestsToday } from "@/lib/metering";
 
 const USERS_PAGE_SIZE = 20;
 
@@ -20,10 +21,11 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     });
   }
 
-  const [userCount, projectCount, resourceCount, users, projects] = await Promise.all([
+  const [userCount, projectCount, resourceCount, requestsToday, users, projects] = await Promise.all([
     db.user.count(),
     db.project.count(),
     db.resource.count(),
+    getTotalRequestsToday(),
     db.user.findMany({
       orderBy: { createdAt: "desc" },
       take: USERS_PAGE_SIZE,
@@ -54,6 +56,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     users: userCount,
     projects: projectCount,
     resources: resourceCount,
+    requestsToday,
   };
 
   const initialUsers: AdminUsersListDto = {

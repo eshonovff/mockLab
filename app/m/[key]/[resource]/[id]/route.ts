@@ -14,6 +14,7 @@ import {
   resolveProjectAndResource,
   withRateLimitHeaders,
 } from "@/lib/mock-api";
+import { recordRequest } from "@/lib/metering";
 import { mockApiRateLimiter } from "@/lib/ratelimit";
 import type { Prisma } from "@prisma/client";
 
@@ -154,6 +155,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
+  await recordRequest(resolved.project.id);
 
   const overrides = await fetchOverrides(resolved.resource.id);
   const record = getRecordById(toDatasetResource(resolved.resource), overrides, id);
@@ -177,6 +179,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
+  await recordRequest(resolved.project.id);
 
   const body: unknown = await request.json().catch(() => null);
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
@@ -209,6 +212,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
+  await recordRequest(resolved.project.id);
 
   const body: unknown = await request.json().catch(() => null);
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
@@ -246,6 +250,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
 
   const resolved = await resolveProjectAndResource(key, resourceName);
   if (!resolved) return jsonError(404, "Not found", undefined, rateLimitHeaders);
+  await recordRequest(resolved.project.id);
 
   const datasetResource = toDatasetResource(resolved.resource);
   const target = await resolveWriteTarget(resolved.resource.id, datasetResource, id);

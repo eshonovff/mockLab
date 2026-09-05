@@ -121,6 +121,12 @@
         "created": "Resurs yaratildi",
         "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
       }
+    },
+    "requests": {
+      "title": "So‘rovlar",
+      "today": "{count, plural, other {Bugun # ta so‘rov}}",
+      "summary": "{total, plural, other {Oxirgi 30 kunda # ta so‘rov}}",
+      "last30Days": "Oxirgi 30 kun"
     }
   },
   "builder": {
@@ -361,7 +367,8 @@
     "stats": {
       "users": "Foydalanuvchilar",
       "projects": "Loyihalar",
-      "resources": "Resurslar"
+      "resources": "Resurslar",
+      "requestsToday": "Bugungi so‘rovlar"
     },
     "users": {
       "title": "Foydalanuvchilar",

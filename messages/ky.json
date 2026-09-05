@@ -121,6 +121,12 @@
         "created": "Ресурс түзүлдү",
         "error": "Бир нерсе туура эмес кетти. Кайра аракет кылыңыз."
       }
+    },
+    "requests": {
+      "title": "Сурамдар",
+      "today": "{count, plural, other {Бүгүн # сурам}}",
+      "summary": "{total, plural, other {Акыркы 30 күндө # сурам}}",
+      "last30Days": "Акыркы 30 күн"
     }
   },
   "builder": {
@@ -357,7 +363,8 @@
     "stats": {
       "users": "Колдонуучулар",
       "projects": "Долбоорлор",
-      "resources": "Ресурстар"
+      "resources": "Ресурстар",
+      "requestsToday": "Бүгүнкү сурамдар"
     },
     "users": {
       "title": "Колдонуучулар",
