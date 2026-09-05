@@ -2,29 +2,11 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import type { MDXContent } from "mdx/types";
 
-import { brand } from "@/lib/brand";
+import { substitutePlaceholders } from "@/lib/content-placeholders";
 import { parseFrontmatter, type DocFrontmatter } from "@/lib/docs/frontmatter";
 import { compileDocBody } from "@/lib/docs/mdx";
 import { extractToc, type TocEntry } from "@/lib/docs/toc";
 import type { Locale } from "@/lib/locales";
-
-// CLAUDE.md's own top-of-file rule: the product name "appears in exactly one place
-// (lib/brand.ts) ... never hardcode the product name anywhere else." Doc content is prose that
-// says the product's name repeatedly, so `.mdx` source files write these tokens instead of the
-// literal strings; substitution runs on the raw text before MDX ever compiles it, so the
-// compiler never sees `{{...}}` — only the already-substituted plain text.
-const CONTENT_PLACEHOLDERS: Record<string, string> = {
-  "{{brand}}": brand.name,
-  "{{domain}}": brand.domain,
-};
-
-function substitutePlaceholders(text: string): string {
-  let result = text;
-  for (const [token, value] of Object.entries(CONTENT_PLACEHOLDERS)) {
-    result = result.replaceAll(token, value);
-  }
-  return result;
-}
 
 const DOCS_CONTENT_DIR = path.join(process.cwd(), "content", "docs");
 

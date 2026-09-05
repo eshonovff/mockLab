@@ -36,9 +36,17 @@ export function MarketingFooter() {
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-caption text-ink-muted">{t("copyright", { year, brand: brand.name })}</p>
-        <Link href="/docs" className="text-caption text-ink-muted hover:text-ink">
-          {t("docs")}
-        </Link>
+        <nav className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/docs" className="text-caption text-ink-muted hover:text-ink">
+            {t("docs")}
+          </Link>
+          <Link href="/terms" className="text-caption text-ink-muted hover:text-ink">
+            {t("terms")}
+          </Link>
+          <Link href="/privacy" className="text-caption text-ink-muted hover:text-ink">
+            {t("privacy")}
+          </Link>
+        </nav>
       </div>
     </footer>
   );

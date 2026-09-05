@@ -28,9 +28,9 @@ function routeEntries(path: string): MetadataRoute.Sitemap {
 }
 
 // CLAUDE.md §8.1/§8.4: every static route × six locales, `alternates.languages` on each entry.
-// Only the home page and docs pages are statically rendered public routes today — templates
-// (mentioned in CLAUDE.md's directory layout) haven't been built yet, and dashboard/admin are
-// `noindex` (excluded here, disallowed in `app/robots.ts`).
+// The home page, docs pages, and now terms/privacy (task 9.2) are the statically rendered public
+// routes today — templates (mentioned in CLAUDE.md's directory layout) haven't been built yet,
+// and dashboard/admin are `noindex` (excluded here, disallowed in `app/robots.ts`).
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Docs slugs are authored in English and identical across all six locale directories (CLAUDE.md
   // §7's "slugs stay in English") — English is the source of truth for which paths exist, same
@@ -40,5 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...routeEntries(""),
     ...docsPages.flatMap((page) => routeEntries(`/docs/${page.slug}`)),
+    ...routeEntries("/terms"),
+    ...routeEntries("/privacy"),
   ];
 }

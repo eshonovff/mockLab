@@ -21,7 +21,8 @@
     "profile": "Profil",
     "logOut": "Chiqish",
     "openMenu": "Menyuni ochish",
-    "language": "Til"
+    "language": "Til",
+    "demoNotice": "{brand} — demo xizmat. Bu yerda real yoki shaxsiy ma’lumotlarni saqlamang — loyihalar va yozuvlarning saqlanishi kafolatlanmaydi."
   },
   "auth": {
     "login": {
@@ -358,6 +359,8 @@
     "footer": {
       "tagline": "Yozuvlar soniga cheklovsiz soxta REST API.",
       "docs": "Hujjatlar",
+      "terms": "Shartlar",
+      "privacy": "Maxfiylik",
       "language": "Til",
       "copyright": "© {year} {brand}"
     }

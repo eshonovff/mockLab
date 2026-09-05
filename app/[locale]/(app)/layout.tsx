@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import type { ReactNode } from "react";
 
 import { QueryProvider } from "@/components/providers/query-provider";
+import { DemoNotice } from "@/components/shell/demo-notice";
 import { RailNav } from "@/components/shell/rail-nav";
 import { TopBar } from "@/components/shell/top-bar";
 import { redirect } from "@/i18n/navigation";
@@ -43,7 +44,10 @@ export default async function AppLayout({
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar isAdmin={session.role === "ADMIN"} />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto p-6">
+            <DemoNotice />
+            {children}
+          </main>
         </div>
       </div>
     </QueryProvider>

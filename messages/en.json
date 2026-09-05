@@ -20,7 +20,8 @@
     "profile": "Profile",
     "logOut": "Log out",
     "openMenu": "Open menu",
-    "language": "Language"
+    "language": "Language",
+    "demoNotice": "{brand} is a demo service — don't store real or personal data. Projects and records aren't guaranteed to persist."
   },
   "auth": {
     "login": {
@@ -353,6 +354,8 @@
     "footer": {
       "tagline": "Fake REST APIs without record limits.",
       "docs": "Docs",
+      "terms": "Terms",
+      "privacy": "Privacy",
       "language": "Language",
       "copyright": "© {year} {brand}"
     }
