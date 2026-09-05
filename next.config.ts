@@ -6,6 +6,10 @@ import "./lib/env";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  // Task 9.5: a self-contained `.next/standalone` output the Dockerfile's runner stage copies
+  // wholesale — only the files a production `node server.js` actually needs, not the full
+  // `node_modules` tree.
+  output: "standalone",
   // This project's real CLAUDE.md lives one directory above the repo root as the constitution
   // for AI-assisted work here. Next 16's `next dev`/`next build` would otherwise regenerate a
   // competing `CLAUDE.md` (and `AGENTS.md`) inside this directory on every run.

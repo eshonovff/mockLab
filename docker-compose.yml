@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mocklab
+      POSTGRES_PASSWORD: mocklab
+      POSTGRES_DB: mocklab
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mocklab"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # The app connects to the `postgres` service by its Compose network name, not localhost —
+      # same credentials as the `postgres` service above, not a placeholder to change per-service.
+      DATABASE_URL: postgresql://mocklab:mocklab@postgres:5432/mocklab
+      # No default here on purpose — a real secret has to come from your own `.env` (see
+      # README.md's "Environment variables" section), never a value checked into this file.
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in a .env file next to docker-compose.yml}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres-data:
