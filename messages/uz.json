@@ -452,5 +452,18 @@
     "toasts": {
       "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "title": "Sahifa topilmadi",
+      "description": "Siz izlayotgan sahifa mavjud emas yoki boshqa manzilga ko‘chirilgan."
+    },
+    "error": {
+      "title": "Xatolik yuz berdi",
+      "description": "Kutilmagan xatolik yuz berdi. Qayta urinib ko‘ring yoki ortga qayting.",
+      "retry": "Qayta urinib ko‘rish"
+    },
+    "backHome": "Bosh sahifaga qaytish",
+    "backDashboard": "Boshqaruv paneliga qaytish"
   }
 }
