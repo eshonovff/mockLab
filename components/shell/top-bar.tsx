@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "@/i18n/navigation";
 
-export function TopBar() {
+export function TopBar({ isAdmin = false }: { isAdmin?: boolean }) {
   const t = useTranslations("shell");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -39,7 +39,7 @@ export function TopBar() {
         </SheetTrigger>
         <SheetContent side="left" className="bg-rail w-64 p-0" showCloseButton={false}>
           <SheetTitle className="sr-only">{t("openMenu")}</SheetTitle>
-          <RailNav onNavigate={() => setMobileNavOpen(false)} />
+          <RailNav onNavigate={() => setMobileNavOpen(false)} isAdmin={isAdmin} />
         </SheetContent>
       </Sheet>
 

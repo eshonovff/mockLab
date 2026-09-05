@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, LayoutDashboard, LifeBuoy, Settings } from "lucide-react";
+import { BookOpen, LayoutDashboard, LifeBuoy, Settings, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
@@ -12,13 +12,26 @@ const primaryNav = [
   { href: "/docs", labelKey: "docs", icon: BookOpen },
 ] as const;
 
+const adminNavItem = { href: "/admin", labelKey: "admin", icon: ShieldCheck } as const;
+
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function RailNav({ onNavigate }: { onNavigate?: () => void }) {
+// `isAdmin` is threaded down from each layout's own `getSession()` call (both (app) and
+// (admin) already fetch the session for their own guard) — without this, an admin has no way
+// to reach `/admin` from the UI short of typing the URL, since the route intentionally isn't
+// linked from anywhere else (task 8.2).
+export function RailNav({
+  onNavigate,
+  isAdmin = false,
+}: {
+  onNavigate?: () => void;
+  isAdmin?: boolean;
+}) {
   const t = useTranslations("shell");
   const pathname = usePathname();
+  const navItems = isAdmin ? [...primaryNav, adminNavItem] : primaryNav;
 
   return (
     <div className="flex h-full flex-col gap-8 p-4">
@@ -34,7 +47,7 @@ export function RailNav({ onNavigate }: { onNavigate?: () => void }) {
       </Link>
 
       <nav className="flex flex-1 flex-col gap-1">
-        {primaryNav.map(({ href, labelKey, icon: Icon }) => {
+        {navItems.map(({ href, labelKey, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
             <Link

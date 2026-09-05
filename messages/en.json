@@ -350,5 +350,57 @@
       "language": "Language",
       "copyright": "© {year} {brand}"
     }
+  },
+  "admin": {
+    "title": "Admin panel",
+    "stats": {
+      "users": "Users",
+      "projects": "Projects",
+      "resources": "Resources"
+    },
+    "users": {
+      "title": "Users",
+      "searchPlaceholder": "Search by email or name",
+      "table": {
+        "email": "Email",
+        "name": "Name",
+        "admin": "Admin",
+        "active": "Active",
+        "joined": "Joined"
+      },
+      "toggleAdmin": "Toggle admin access for {email}",
+      "toggleActive": "Toggle active status for {email}",
+      "self": "You",
+      "selfHint": "You can't change your own account",
+      "empty": "No users match your search.",
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {page} of {totalPages}",
+      "toasts": {
+        "updated": "User updated",
+        "error": "Something went wrong. Try again."
+      }
+    },
+    "projects": {
+      "title": "Projects",
+      "table": {
+        "name": "Name",
+        "key": "Key",
+        "owner": "Owner",
+        "resources": "Resources",
+        "created": "Created"
+      },
+      "delete": {
+        "trigger": "Delete",
+        "title": "Delete project",
+        "description": "This permanently deletes \"{name}\" and all of its resources and data. This can't be undone.",
+        "confirm": "Delete project"
+      },
+      "empty": "No projects yet.",
+      "toasts": {
+        "deleted": "Project deleted",
+        "error": "Something went wrong. Try again."
+      }
+    }
   }
 }

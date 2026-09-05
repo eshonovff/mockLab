@@ -355,5 +355,57 @@
       "language": "Til",
       "copyright": "© {year} {brand}"
     }
+  },
+  "admin": {
+    "title": "Administrator paneli",
+    "stats": {
+      "users": "Foydalanuvchilar",
+      "projects": "Loyihalar",
+      "resources": "Resurslar"
+    },
+    "users": {
+      "title": "Foydalanuvchilar",
+      "searchPlaceholder": "Email yoki ism bo‘yicha qidirish",
+      "table": {
+        "email": "Email",
+        "name": "Ism",
+        "admin": "Administrator",
+        "active": "Faol",
+        "joined": "Ro‘yxatdan o‘tgan"
+      },
+      "toggleAdmin": "{email} uchun administrator huquqini almashtirish",
+      "toggleActive": "{email} uchun faollik holatini almashtirish",
+      "self": "Siz",
+      "selfHint": "O‘z hisobingizni o‘zgartira olmaysiz",
+      "empty": "Qidiruvingizga mos foydalanuvchi topilmadi.",
+      "previous": "Orqaga",
+      "next": "Keyingi",
+      "pageInfo": "{totalPages} sahifadan {page}-si",
+      "toasts": {
+        "updated": "Foydalanuvchi yangilandi",
+        "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+      }
+    },
+    "projects": {
+      "title": "Loyihalar",
+      "table": {
+        "name": "Nomi",
+        "key": "Kalit",
+        "owner": "Egasi",
+        "resources": "Resurslar",
+        "created": "Yaratilgan"
+      },
+      "delete": {
+        "trigger": "O‘chirish",
+        "title": "Loyihani o‘chirish",
+        "description": "Bu «{name}» loyihasini barcha resurslari va ma’lumotlari bilan birga butunlay o‘chiradi. Buni qaytarib bo‘lmaydi.",
+        "confirm": "Loyihani o‘chirish"
+      },
+      "empty": "Hali loyihalar yo‘q.",
+      "toasts": {
+        "deleted": "Loyiha o‘chirildi",
+        "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+      }
+    }
   }
 }
