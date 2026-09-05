@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { optionsSchemas, type FieldType } from "@/lib/generator/field-types";
+import { locales } from "@/lib/locales";
 
 export const registerSchema = z.object({
   email: z.email(),
@@ -17,6 +18,25 @@ export const registerSchema = z.object({
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+// Task 9.1's account settings. The route (not this schema) turns a present-but-empty `name`
+// into `null` (clear it) while an absent key stays untouched — chaining `.transform()` after
+// `.optional()` here would collapse both "key omitted" and "key present as ''" to the same
+// value (transform still runs on `optional()`'s `undefined`), losing the distinction a partial
+// update needs between "don't touch this field" and "clear this field".
+export const updateProfileSchema = z.object({
+  name: z.string().trim().max(120).optional(),
+  locale: z.enum(locales).optional(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
 export const loginSchema = z.object({
   email: z.email(),

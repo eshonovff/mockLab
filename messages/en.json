@@ -409,5 +409,40 @@
         "error": "Something went wrong. Try again."
       }
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "save": "Save",
+      "saved": "Profile updated"
+    },
+    "language": {
+      "title": "Language"
+    },
+    "password": {
+      "title": "Change password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "submit": "Change password",
+      "saved": "Password changed",
+      "errors": {
+        "currentIncorrect": "Current password is incorrect",
+        "newMin": "Password must be at least 8 characters"
+      }
+    },
+    "deleteAccount": {
+      "title": "Delete account",
+      "description": "Permanently delete your account, including every project, resource and its data. This can't be undone.",
+      "trigger": "Delete account",
+      "confirmTitle": "Delete account",
+      "confirmDescription": "This permanently deletes your account \"{email}\" and everything in it — every project, resource and its data. This can't be undone.",
+      "confirmButton": "Delete account"
+    },
+    "toasts": {
+      "error": "Something went wrong. Try again."
+    }
   }
 }

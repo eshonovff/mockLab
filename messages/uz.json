@@ -414,5 +414,40 @@
         "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
       }
     }
+  },
+  "settings": {
+    "title": "Sozlamalar",
+    "profile": {
+      "title": "Profil",
+      "nameLabel": "Ism",
+      "namePlaceholder": "Ismingiz",
+      "save": "Saqlash",
+      "saved": "Profil yangilandi"
+    },
+    "language": {
+      "title": "Til"
+    },
+    "password": {
+      "title": "Parolni almashtirish",
+      "currentLabel": "Joriy parol",
+      "newLabel": "Yangi parol",
+      "submit": "Parolni almashtirish",
+      "saved": "Parol almashtirildi",
+      "errors": {
+        "currentIncorrect": "Joriy parol noto‘g‘ri",
+        "newMin": "Parol kamida 8 belgidan iborat bo‘lishi kerak"
+      }
+    },
+    "deleteAccount": {
+      "title": "Hisobni o‘chirish",
+      "description": "Hisobingizni barcha loyihalari, resurslari va ma’lumotlari bilan birga butunlay o‘chiradi. Buni qaytarib bo‘lmaydi.",
+      "trigger": "Hisobni o‘chirish",
+      "confirmTitle": "Hisobni o‘chirish",
+      "confirmDescription": "Bu «{email}» hisobingizni va undagi hamma narsani — barcha loyihalar, resurslar va ma’lumotlarni — butunlay o‘chiradi. Buni qaytarib bo‘lmaydi.",
+      "confirmButton": "Hisobni o‘chirish"
+    },
+    "toasts": {
+      "error": "Xatolik yuz berdi. Qayta urinib ko‘ring."
+    }
   }
 }
