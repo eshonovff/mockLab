@@ -39,7 +39,8 @@ RUN npx prisma generate --config prisma7.config.ts
 RUN npm run build
 
 # ---------------------------------------------------------------------------------------------
-# runner: only `.next/standalone`'s traced output — not the full source tree or dev dependencies.
+# runner: `.next/standalone`'s traced output, plus `deps`'s full node_modules so the Prisma CLI
+# is available for migrations (see the COPY below) — not the full source tree.
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -52,10 +53,46 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 mocklab
 COPY --from=builder --chown=mocklab:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=mocklab:nodejs /app/.next/static ./.next/static
 
+# The Prisma CLI itself (as opposed to `@prisma/client`, which the app imports and Next already
+# traces into `standalone` above) is never `require()`d by any traced file, so it's absent from
+# the copy above — `npx prisma` in this image would otherwise fall through to npm's registry and
+# resolve `latest`, which is the `8.0.0-rc` Developer Platform CLI (see README's "Migrations"
+# section), not the pinned 7.x this schema/config was written for.
+#
+# Copying just `node_modules/prisma` (+`@prisma/*`) from `deps` is not enough: `@prisma/config`
+# requires `effect`, which pulls in its own dependency tree, and so on — the CLI's real transitive
+# closure isn't practically enumerable by hand, and every attempt to hand-pick it turned into
+# whack-a-mole against a new `MODULE_NOT_FOUND` (confirmed empirically, not assumed). Copying the
+# entire `deps` node_modules wholesale is the only version of this that doesn't silently break the
+# next time Prisma restructures its own dependencies; it lands on top of the traced `standalone`
+# node_modules above (Docker COPY merges directories, only overwriting overlapping paths, so
+# `@prisma/client`'s already-generated output is untouched) at a real image-size cost this project
+# accepts in exchange for migrations that actually run. `dotenv` (imported by `prisma7.config.ts`)
+# comes along automatically as part of the same tree.
+COPY --from=deps --chown=mocklab:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=mocklab:nodejs /app/prisma ./prisma
+COPY --from=deps --chown=mocklab:nodejs /app/prisma7.config.ts ./prisma7.config.ts
+COPY --from=deps --chown=mocklab:nodejs /app/package.json ./package.json
+
+# The COPY above brought over `node_modules/.bin/prisma` too, but as the broken flat copy
+# described above (`COPY` dereferenced the symlink at the source, not a real link) — `npx prisma`
+# (what `docker compose exec app npx prisma migrate status` runs) resolves through this exact
+# path, so leaving it broken would make that command fail even though the entrypoint's own direct
+# `build/index.js` call works fine. Re-creating it as a genuine symlink here fixes `npx` too: this
+# `ln -s` happens on the real container filesystem, not through `COPY`, so Node follows it
+# normally at run time.
+RUN rm -f node_modules/.bin/prisma && ln -s ../prisma/build/index.js node_modules/.bin/prisma
+
+COPY --chown=mocklab:nodejs docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
 USER mocklab
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
+# docker-entrypoint.sh applies pending migrations (`prisma migrate deploy`, the CLI copied in
+# above) before handing off to the server — see that file for why it's invoked the way it is.
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

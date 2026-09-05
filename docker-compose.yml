@@ -33,11 +33,26 @@ services:
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      # `127.0.0.1`, not `localhost`: musl's resolver on this bridge network returns `::1` first
+      # for `localhost`, and the server only binds the IPv4 `0.0.0.0` (`HOSTNAME` above) — `wget`
+      # then fails every check with "connection refused" against a container that's actually up
+      # and answering fine on IPv4 (confirmed directly: `docker exec ... wget http://127.0.0.1...`
+      # succeeds while the `localhost` form fails, from the same shell, at the same instant).
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      # The entrypoint now runs `prisma migrate deploy` before the server starts listening
+      # (see Dockerfile/docker-entrypoint.sh). Measured directly against a freshly built image
+      # (cold OS page cache for the new layers, real migrations to apply): the CLI's own cold
+      # start — loading @prisma/config, the `effect` library it depends on, and the ~3MB WASM
+      # schema engine — plus the migration run took up to ~90s in testing, well past a "normal"
+      # Next.js boot. A too-short start_period flapped the container to "unhealthy" mid-boot even
+      # though it came up fine moments later (confirmed: `GET /api/health` returned 200 while the
+      # healthcheck log still showed back-to-back "connection refused"). 90s is a deliberately
+      # generous margin for that cold path; once the image's layers are cached on a host, real
+      # boots land well under it.
+      start_period: 90s
 
 volumes:
   postgres-data:

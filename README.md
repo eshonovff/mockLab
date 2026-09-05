@@ -87,23 +87,35 @@ docker compose up --build
 ```
 
 This starts two services: `postgres` (PostgreSQL 17, credentials `mocklab`/`mocklab`/`mocklab`,
-persisted to a named volume) and `app` (this repo's `Dockerfile`, a multi-stage build producing
-Next's `standalone` output — no dev dependencies or full `node_modules` in the final image).
+persisted to a named volume) and `app` (this repo's `Dockerfile`, a multi-stage build on top of
+Next's `standalone` output).
 
-**Migrations and seeding run from the host, not inside the `app` container.** The production
-image intentionally ships only the standalone runtime (no Prisma CLI, no `tsx`), so point the
-normal commands from "Migrations" above at the exposed Postgres port instead:
+**Migrations run automatically, from inside the `app` container, before the server starts
+accepting traffic.** `docker-entrypoint.sh` runs `prisma migrate deploy` first thing on every
+container start (idempotent — a no-op in seconds if there's nothing pending), then hands off to
+`node server.js`. The image's `runner` stage copies the pinned Prisma CLI in from the `deps`
+stage's install specifically so this never touches the network — see the Dockerfile's own
+comments for why a partial copy of just `node_modules/prisma` isn't enough, and why
+`node_modules/.bin/prisma` needs its symlink rebuilt by hand after `COPY`. The tradeoff: this
+`runner` image is no longer the lean, CLI-free build it once was — it ships the full `deps`
+`node_modules`, not just what Next traced — in exchange for migrations that actually run without
+a separate host-side step.
+
+Seeding still doesn't run automatically (it's not idempotent-safe to run unattended against a
+database that already has real user data) — do it manually the same way as local dev, against
+the exposed Postgres port:
 
 ```bash
-DATABASE_URL="postgresql://mocklab:mocklab@localhost:5432/mocklab" \
-  npx prisma migrate deploy --config prisma7.config.ts
-
 DATABASE_URL="postgresql://mocklab:mocklab@localhost:5432/mocklab" \
   npx prisma db seed --config prisma7.config.ts
 ```
 
-Do this once after the first `docker compose up`, and again after any deploy that adds a new
-migration.
+Only needed once, right after the very first `docker compose up`.
+
+If you need to run a Prisma command inside the running container directly —
+`docker compose exec app npx prisma migrate status --config prisma7.config.ts`, for
+instance — it resolves the same pinned local CLI as everywhere else in this project, with zero
+network access, for the same reason described above.
 
 ### Health check
 
@@ -111,6 +123,13 @@ migration.
 response, so a container that's running but can't reach Postgres reports unhealthy. Both the
 `app` service's own Docker healthcheck and any external load balancer/orchestrator health probe
 should point at this.
+
+The Docker healthcheck itself hits `http://127.0.0.1:3000` — not `localhost` — because on this
+image `localhost` can resolve to `::1` first and the server only binds the IPv4 `0.0.0.0`,
+turning every check into a false "connection refused" against a container that's actually up.
+`start_period` is 90s: `prisma migrate deploy` now runs before the server starts listening (see
+"Docker" above), and measured cold — fresh image layers, real migrations to apply — that can take
+most of that window.
 
 ## Production notes
 
