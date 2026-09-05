@@ -19,5 +19,9 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|m|_next|_vercel|.*\\..*).*)"],
+  // `icon` (app/icon.tsx, no dot in its own path) needs its own exclusion alongside the dotted
+  // static conventions below — without it this middleware locale-prefixes the browser's request
+  // for the generated favicon to `/en/icon`, which 404s (that route only exists at the true app
+  // root, not under `[locale]`).
+  matcher: ["/((?!api|m|_next|_vercel|icon|.*\\..*).*)"],
 };
