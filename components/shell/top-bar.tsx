@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, LogOut, Menu, Settings, UserRound } from "lucide-react";
+import { LogOut, Menu, Settings, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -15,16 +15,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 export function TopBar({ isAdmin = false }: { isAdmin?: boolean }) {
   const t = useTranslations("shell");
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogOut() {
+    setLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
-    <header className="border-line flex h-16 shrink-0 items-center gap-3 border-b px-4 lg:px-6">
+    <header className="border-line bg-canvas sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b px-4 lg:px-6">
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <SheetTrigger asChild>
           <Button
@@ -43,15 +51,7 @@ export function TopBar({ isAdmin = false }: { isAdmin?: boolean }) {
         </SheetContent>
       </Sheet>
 
-      <div className="max-w-sm flex-1">
-        <Input type="search" placeholder={t("search")} aria-label={t("search")} />
-      </div>
-
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="sm" iconOnly aria-label={t("notifications")}>
-          <Bell className="size-4" aria-hidden="true" />
-        </Button>
-
         <LocaleSwitcher />
 
         <DropdownMenu>
@@ -78,7 +78,7 @@ export function TopBar({ isAdmin = false }: { isAdmin?: boolean }) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" disabled>
+            <DropdownMenuItem variant="destructive" disabled={loggingOut} onSelect={handleLogOut}>
               <LogOut className="size-4" aria-hidden="true" />
               {t("logOut")}
             </DropdownMenuItem>
