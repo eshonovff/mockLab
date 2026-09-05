@@ -11,6 +11,12 @@ export async function updateResource(id: string, input: UpdateResourceInput): Pr
   return response.json();
 }
 
+export async function resetResource(id: string): Promise<ResourceDto> {
+  const response = await fetch(`/api/resources/${id}/reset`, { method: "POST" });
+  if (!response.ok) throw new Error("Failed to reset resource");
+  return response.json();
+}
+
 export async function previewSchema(input: SchemaPreviewInput): Promise<Record<string, unknown>[]> {
   const response = await fetch("/api/schema/preview", {
     method: "POST",

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { previewSchema, updateResource } from "@/components/builder/api";
+import { previewSchema, resetResource, updateResource } from "@/components/builder/api";
 import {
   createDraftField,
   DEFAULT_FIELD_OPTIONS,
@@ -105,6 +105,16 @@ export function SchemaBuilder({
       seed: string;
     }) => updateResource(initialResource.id, input),
     onError: () => toast.error(t("toasts.saveError")),
+  });
+
+  const [resetOpen, setResetOpen] = useState(false);
+  const resetMutation = useMutation({
+    mutationFn: () => resetResource(initialResource.id),
+    onSuccess: () => {
+      toast.success(t("toasts.resetSuccess"));
+      setResetOpen(false);
+    },
+    onError: () => toast.error(t("toasts.resetError")),
   });
 
   function persistNow(nextDraft: Draft, nextSeed: string, opts?: { onError?: () => void }) {
@@ -328,9 +338,13 @@ export function SchemaBuilder({
             count={draft.count}
             locale={draft.locale}
             seed={seed}
+            resetOpen={resetOpen}
+            resetting={resetMutation.isPending}
             onCountChange={handleCountChange}
             onLocaleChange={handleLocaleChange}
             onRegenerateSeed={handleRegenerateSeed}
+            onResetOpenChange={setResetOpen}
+            onReset={() => resetMutation.mutate()}
           />
 
           <EndpointConsole baseUrl={endpointBaseUrl} />

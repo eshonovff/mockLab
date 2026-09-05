@@ -4,6 +4,7 @@ import { RotateCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { DialogForm } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,16 +20,24 @@ export function ResourceSettings({
   count,
   locale,
   seed,
+  resetOpen,
+  resetting,
   onCountChange,
   onLocaleChange,
   onRegenerateSeed,
+  onResetOpenChange,
+  onReset,
 }: {
   count: number;
   locale: string;
   seed: string;
+  resetOpen: boolean;
+  resetting: boolean;
   onCountChange: (count: number) => void;
   onLocaleChange: (locale: string) => void;
   onRegenerateSeed: () => void;
+  onResetOpenChange: (open: boolean) => void;
+  onReset: () => void;
 }) {
   const t = useTranslations("builder");
 
@@ -86,6 +95,26 @@ export function ResourceSettings({
             <RotateCwIcon aria-hidden="true" />
           </Button>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5 border-t border-line pt-4">
+        <Label>{t("settings.resetTrigger")}</Label>
+        <DialogForm
+          open={resetOpen}
+          onOpenChange={onResetOpenChange}
+          trigger={
+            <Button type="button" variant="secondary" className="w-fit">
+              {t("settings.resetTrigger")}
+            </Button>
+          }
+          title={t("settings.resetTitle")}
+          confirmText={t("settings.resetConfirm")}
+          destructive
+          loading={resetting}
+          onConfirm={onReset}
+        >
+          <p className="text-caption text-ink-muted">{t("settings.resetDescription")}</p>
+        </DialogForm>
       </div>
     </div>
   );

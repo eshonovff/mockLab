@@ -198,7 +198,11 @@
       "count": "Record count",
       "locale": "Data locale",
       "seed": "Seed",
-      "regenerateSeed": "Regenerate seed"
+      "regenerateSeed": "Regenerate seed",
+    "resetTrigger": "Reset data",
+    "resetTitle": "Reset data",
+    "resetDescription": "This clears every record you've created or edited through the mock API. Generated data itself is untouched — you'll see it fresh again, as if you'd never made any changes. This can't be undone.",
+    "resetConfirm": "Reset data"
     },
     "endpoints": {
       "title": "Endpoints",
@@ -224,7 +228,9 @@
     },
     "toasts": {
       "saveError": "Couldn't save your changes. Try again.",
-      "reorderError": "Couldn't save the new order — it's been reverted."
+      "reorderError": "Couldn't save the new order — it's been reverted.",
+    "resetSuccess": "Data reset",
+    "resetError": "Couldn't reset the data. Try again."
     }
   },
   "docs": {

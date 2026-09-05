@@ -199,7 +199,11 @@
       "count": "Yozuvlar soni",
       "locale": "Ma’lumot tili",
       "seed": "Seed",
-      "regenerateSeed": "Seedni qayta yaratish"
+      "regenerateSeed": "Seedni qayta yaratish",
+    "resetTrigger": "Ma’lumotlarni tozalash",
+    "resetTitle": "Ma’lumotlarni tozalash",
+    "resetDescription": "Bu mock API orqali yaratgan yoki tahrirlagan barcha yozuvlaringizni tozalaydi. Yaratilgan ma’lumotning o‘zi tegilmaydi — siz uni xuddi hech qanday o‘zgarish kiritilmagandek, qaytadan asl holida ko‘rasiz. Buni qaytarib bo‘lmaydi.",
+    "resetConfirm": "Ma’lumotlarni tozalash"
     },
     "endpoints": {
       "title": "Endpointlar",
@@ -225,7 +229,9 @@
     },
     "toasts": {
       "saveError": "O‘zgarishlar saqlanmadi. Qayta urinib ko‘ring.",
-      "reorderError": "Yangi tartib saqlanmadi — bekor qilindi."
+      "reorderError": "Yangi tartib saqlanmadi — bekor qilindi.",
+    "resetSuccess": "Ma’lumotlar tozalandi",
+    "resetError": "Ma’lumotlarni tozalab bo‘lmadi. Qayta urinib ko‘ring."
     }
   },
   "docs": {
