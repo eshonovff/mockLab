@@ -105,6 +105,22 @@ export async function clearSessionCookie(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
+export type RequireAdminResult =
+  | { ok: true; session: Session }
+  | { ok: false; status: 401 | 403; message: string };
+
+/**
+ * Every `/api/admin/*` handler calls this itself (CLAUDE.md §8.1: "Every handler re-checks
+ * `role === 'ADMIN'` — never rely on the layout guard alone") — the `(admin)` layout's own
+ * check only protects the UI route, not these API routes, which a client could hit directly.
+ */
+export async function requireAdmin(): Promise<RequireAdminResult> {
+  const session = await getSession();
+  if (!session) return { ok: false, status: 401, message: "Not authenticated" };
+  if (session.role !== "ADMIN") return { ok: false, status: 403, message: "Forbidden" };
+  return { ok: true, session };
+}
+
 export async function getSession(): Promise<Session | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;

@@ -40,6 +40,41 @@ export const updateProjectSchema = z.object({
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 
 // ---------------------------------------------------------------------------------------------
+// Admin endpoints (task 8.1). `roleValues`/`statusValues` are hand-mirrored from
+// `prisma/schema.prisma`'s `Role`/`Status` enums rather than imported from `@prisma/client` —
+// this file is imported by client forms via `zodResolver` (see above), and `@prisma/client`'s
+// module pulls in the Node-only query engine, which can't ship in a browser bundle.
+
+export const roleValues = ["USER", "ADMIN"] as const;
+export const statusValues = ["ACTIVE", "SUSPENDED"] as const;
+
+export const paginationQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const adminUsersQuerySchema = paginationQuerySchema.extend({
+  search: z.string().trim().min(1).optional(),
+});
+
+export type AdminUsersQuery = z.infer<typeof adminUsersQuerySchema>;
+
+export const updateUserSchema = z
+  .object({
+    role: z.enum(roleValues).optional(),
+    status: z.enum(statusValues).optional(),
+  })
+  .refine((data) => data.role !== undefined || data.status !== undefined, {
+    message: "Provide at least one of role or status",
+    // Without an explicit `path`, this error has none — `z.flattenError` then drops it into
+    // `formErrors`, not `fieldErrors`, and the platform API's error envelope (CLAUDE.md §9) only
+    // surfaces `errors` (field-keyed), so the message would silently never reach the client.
+    path: ["role"],
+  });
+
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
+// ---------------------------------------------------------------------------------------------
 // Resource schema validation (CLAUDE.md §5's field registry, validated at the API boundary —
 // task 4.3). Imports from lib/generator/field-types.ts, never lib/generator/fields.ts: the
 // latter also pulls in @faker-js/faker for the actual generator functions, which this file
