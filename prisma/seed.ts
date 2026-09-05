@@ -1,12 +1,21 @@
-// Provisions the one permanent demo project + resource the marketing home page's hero widget
-// calls through the real public `/m/{key}/{resource}` endpoint (task 7.2). Idempotent — safe to
-// run on every deploy: upserts by the fixed identifiers in `lib/demo.ts` rather than blindly
-// inserting, so re-running never creates duplicates or a second demo account.
+// Provisions the one permanent demo project the marketing home page's hero widget calls through
+// the real public `/m/{key}/{resource}` endpoint (task 7.2), plus two more resources (task 9.4)
+// showing off variety in the field-type registry for anyone exploring the demo project directly.
+// Idempotent — safe to run on every deploy: upserts by the fixed identifiers in `lib/demo.ts`
+// rather than blindly inserting, so re-running never creates duplicates or a second demo account.
 import type { Prisma } from "@prisma/client";
 
 import { hashPassword } from "../lib/auth";
 import { db } from "../lib/db";
-import { DEMO_PROJECT_KEY, DEMO_RESOURCE_NAME, DEMO_RESOURCE_SEED } from "../lib/demo";
+import {
+  DEMO_POSTS_RESOURCE_NAME,
+  DEMO_POSTS_RESOURCE_SEED,
+  DEMO_PROJECT_KEY,
+  DEMO_RESOURCE_NAME,
+  DEMO_RESOURCE_SEED,
+  DEMO_USERS_RESOURCE_NAME,
+  DEMO_USERS_RESOURCE_SEED,
+} from "../lib/demo";
 import type { ResourceSchemaInput } from "../lib/validators";
 
 const DEMO_USER_EMAIL = "demo@mocklab.dev";
@@ -30,6 +39,66 @@ const DEMO_SCHEMA: ResourceSchemaInput = {
   locale: "en",
 };
 
+// A distinct field mix from `products` — identity/contact types (fullName, email, phone,
+// avatar, city, country) rather than product-catalog types, so the demo project shows real
+// variety across the field-type registry, not three resources that all look the same.
+const DEMO_USERS_SCHEMA: ResourceSchemaInput = {
+  fields: [
+    { name: "fullName", type: "fullName", options: {} },
+    { name: "email", type: "email", options: {} },
+    { name: "phone", type: "phone", options: {} },
+    { name: "avatar", type: "avatar", options: {} },
+    { name: "city", type: "city", options: {} },
+    { name: "country", type: "country", options: {} },
+  ],
+  locale: "en",
+};
+
+// A third distinct mix — long-form text (sentence, paragraph) and a date, neither of which
+// `products` or `users` exercises.
+const DEMO_POSTS_SCHEMA: ResourceSchemaInput = {
+  fields: [
+    { name: "title", type: "sentence", options: { min: 3, max: 8 } },
+    { name: "body", type: "paragraph", options: { min: 2, max: 5 } },
+    { name: "author", type: "fullName", options: {} },
+    {
+      name: "category",
+      type: "enum",
+      options: { values: ["News", "Guides", "Opinion", "Release notes"] },
+    },
+    { name: "published", type: "boolean", options: { probability: 0.85 } },
+    { name: "publishedAt", type: "date", options: {} },
+  ],
+  locale: "en",
+};
+
+// Shared by all three demo resources below — the exact same upsert shape repeated three times
+// inline would just be three chances for one of them to quietly drift from the others.
+async function upsertDemoResource(
+  projectId: string,
+  name: string,
+  schema: ResourceSchemaInput,
+  seed: string,
+): Promise<void> {
+  await db.resource.upsert({
+    where: { projectId_name: { projectId, name } },
+    // Re-running the seed after a deploy should still let the schema evolve if this file
+    // changes; `dataVersion` bumps so cached pages don't serve the previous shape.
+    update: {
+      schema: schema as Prisma.InputJsonValue,
+      seed,
+      dataVersion: { increment: 1 },
+    },
+    create: {
+      projectId,
+      name,
+      schema: schema as Prisma.InputJsonValue,
+      seed,
+      count: 30,
+    },
+  });
+}
+
 async function main() {
   const user = await db.user.upsert({
     where: { email: DEMO_USER_EMAIL },
@@ -50,25 +119,23 @@ async function main() {
     create: { userId: user.id, name: "Demo", key: DEMO_PROJECT_KEY },
   });
 
-  await db.resource.upsert({
-    where: { projectId_name: { projectId: project.id, name: DEMO_RESOURCE_NAME } },
-    // Re-running the seed after a deploy should still let the schema evolve if this file
-    // changes; `dataVersion` bumps so cached pages don't serve the previous shape.
-    update: {
-      schema: DEMO_SCHEMA as Prisma.InputJsonValue,
-      seed: DEMO_RESOURCE_SEED,
-      dataVersion: { increment: 1 },
-    },
-    create: {
-      projectId: project.id,
-      name: DEMO_RESOURCE_NAME,
-      schema: DEMO_SCHEMA as Prisma.InputJsonValue,
-      seed: DEMO_RESOURCE_SEED,
-      count: 30,
-    },
-  });
+  await upsertDemoResource(project.id, DEMO_RESOURCE_NAME, DEMO_SCHEMA, DEMO_RESOURCE_SEED);
+  await upsertDemoResource(
+    project.id,
+    DEMO_USERS_RESOURCE_NAME,
+    DEMO_USERS_SCHEMA,
+    DEMO_USERS_RESOURCE_SEED,
+  );
+  await upsertDemoResource(
+    project.id,
+    DEMO_POSTS_RESOURCE_NAME,
+    DEMO_POSTS_SCHEMA,
+    DEMO_POSTS_RESOURCE_SEED,
+  );
 
-  console.log(`Seeded demo resource: /m/${DEMO_PROJECT_KEY}/${DEMO_RESOURCE_NAME}`);
+  console.log(
+    `Seeded demo resources: /m/${DEMO_PROJECT_KEY}/{${DEMO_RESOURCE_NAME},${DEMO_USERS_RESOURCE_NAME},${DEMO_POSTS_RESOURCE_NAME}}`,
+  );
 }
 
 main()
