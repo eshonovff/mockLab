@@ -177,6 +177,22 @@
   /* Motion: transitions are 150ms ease-out, only in response to a user action. */
   --default-transition-duration: 150ms;
   --default-transition-timing-function: ease-out;
+
+  /* CLAUDE.md §6's "marketing exception" only — the one ambient, autonomous (not user-triggered)
+     animation in the app, used solely by the (marketing) hero's record-stream background
+     (components/marketing/record-stream.tsx). Slow and continuous on purpose: a hum, not an
+     attention grab. The translateY(-50%) endpoint loops seamlessly because the component
+     renders its line list twice back to back. */
+  --animate-record-stream: record-stream 48s linear infinite;
+}
+
+@keyframes record-stream {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
 }
 
 @layer base {
