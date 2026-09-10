@@ -8,3 +8,10 @@ dist
 .DS_Store
 next-env.d.ts
 *.tsbuildinfo
+
+# Playwright verification script output (scripts/verify-landing.ts) — screenshots, traces, and
+# test-results are local artifacts for a manual check, never committed.
+/screenshots
+/test-results
+/playwright-report
+*.playwright-trace.zip

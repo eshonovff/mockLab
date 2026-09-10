@@ -17,6 +17,13 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma7.config.ts ./
 RUN npm ci
+# `npm ci` installs devDependencies too (no `--omit=dev`) — this stage's node_modules is what
+# both the `builder` stage (needs tailwindcss, typescript, babel-plugin-react-compiler, *and*
+# `playwright` — `npm run build`'s own TypeScript pass type-checks `scripts/verify-landing.ts`
+# too, since tsconfig.json's `include` is project-wide) and the `runner` stage (needs the
+# `prisma` CLI at run time, per the copy below) pull from wholesale. Do NOT strip `playwright`
+# here — see the `runner` stage below for where that actually happens, and why it has to happen
+# there instead.
 
 # ---------------------------------------------------------------------------------------------
 # builder: `next build` plus `prisma generate` (postinstall already ran generate against `deps`'
@@ -73,6 +80,15 @@ COPY --from=deps --chown=mocklab:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=mocklab:nodejs /app/prisma ./prisma
 COPY --from=deps --chown=mocklab:nodejs /app/prisma7.config.ts ./prisma7.config.ts
 COPY --from=deps --chown=mocklab:nodejs /app/package.json ./package.json
+
+# `playwright` is a devDependency used only by `scripts/verify-landing.ts` (local/CI-only
+# verification — nothing in the app or build imports it) but `deps`' node_modules had to keep it
+# through the `builder` stage above (its type-check needs it) — stripped here, in `runner`'s own
+# copy, so it never rides into the image that's actually deployed. This removes only the small JS
+# driver; the real Chromium binary is never fetched inside any Docker stage in the first place
+# (`playwright install` only ever runs on the host/CI, into a cache directory outside this build
+# context), so there's no browser binary to worry about either way.
+RUN rm -rf node_modules/playwright node_modules/playwright-core
 
 # The COPY above brought over `node_modules/.bin/prisma` too, but as the broken flat copy
 # described above (`COPY` dereferenced the symlink at the source, not a real link) — `npx prisma`
