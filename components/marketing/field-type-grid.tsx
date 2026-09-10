@@ -10,15 +10,17 @@ import {
   ToggleLeftIcon,
   UserIcon,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ComponentType } from "react";
 
+import { FieldTypeCard } from "@/components/marketing/field-type-card";
 import { Link } from "@/i18n/navigation";
+import { getFieldTypeSamples, type FieldTypeKey } from "@/lib/marketing/field-samples";
 
 // A curated ~10 of the 22 real field types (lib/generator/field-types.ts) — the full reference
 // table already lives in the docs (/docs/schema-and-field-types); this is a showcase, not a
 // duplicate of it.
-const FIELD_TYPES: { key: string; icon: ComponentType<{ className?: string }> }[] = [
+const FIELD_TYPES: { key: FieldTypeKey; icon: ComponentType<{ className?: string }> }[] = [
   { key: "uuid", icon: FingerprintIcon },
   { key: "fullName", icon: UserIcon },
   { key: "email", icon: MailIcon },
@@ -33,6 +35,8 @@ const FIELD_TYPES: { key: string; icon: ComponentType<{ className?: string }> }[
 
 export function FieldTypeGrid() {
   const t = useTranslations("home.fieldTypes");
+  const locale = useLocale();
+  const samples = getFieldTypeSamples(locale);
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -42,16 +46,12 @@ export function FieldTypeGrid() {
       </div>
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {FIELD_TYPES.map(({ key, icon: Icon }) => (
-          <div
+          <FieldTypeCard
             key={key}
-            className="flex flex-col gap-2 rounded-card border border-line bg-surface p-4"
-          >
-            <Icon className="size-4 text-accent" aria-hidden="true" />
-            <code className="font-mono text-caption text-ink">{t(`${key}.label`)}</code>
-            <span className="truncate font-mono text-caption text-ink-muted">
-              {t(`${key}.example`)}
-            </span>
-          </div>
+            label={t(`${key}.label`)}
+            icon={<Icon className="size-4 text-accent" aria-hidden="true" />}
+            samples={samples[key]}
+          />
         ))}
       </div>
       <Link
