@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { HeroDemo } from "@/components/marketing/hero-demo";
@@ -25,7 +26,10 @@ export function Hero() {
           <h1 className="text-display text-ink">{t("headline")}</h1>
           <p className="text-body text-ink-muted">{t("subheadline")}</p>
           <Button asChild size="lg" className="w-fit">
-            <Link href="/register">{t("cta")}</Link>
+            <Link href="/register">
+              {t("cta")}
+              <ArrowRightIcon aria-hidden="true" />
+            </Link>
           </Button>
         </div>
         <HeroDemo requestPath={requestPath} fullUrl={fullUrl} />

@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { brand } from "@/lib/brand";
@@ -38,7 +39,15 @@ export function Comparison() {
                   {t(`rows.${row}.label`)}
                 </th>
                 <td className="p-4 text-caption text-ink-muted">{t(`rows.${row}.typical`)}</td>
-                <td className="p-4 text-caption text-ink">{t(`rows.${row}.us`)}</td>
+                <td className="p-4 text-caption text-ink">
+                  <span className="inline-flex items-center gap-1.5">
+                    <CheckCircleIcon
+                      className="size-3.5 shrink-0 text-badge-mint-fg"
+                      aria-hidden="true"
+                    />
+                    {t(`rows.${row}.us`)}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
